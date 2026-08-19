@@ -1,0 +1,25 @@
+{
+  "name": "berare",
+  "private": true,
+  "version": "0.0.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:storefront": "npm run dev -w storefront",
+    "dev:admin": "npm run dev -w admin",
+    "dev:affiliate": "npm run dev -w affiliate",
+    "build:storefront": "npm run build -w storefront",
+    "build:admin": "npm run build -w admin",
+    "build:affiliate": "npm run build -w affiliate",
+    "build": "npm run build -w storefront && npm run build -w admin && npm run build -w affiliate",
+    "typecheck": "npm run typecheck -w storefront && npm run typecheck -w admin && npm run typecheck -w affiliate"
+  },
+  "devDependencies": {
+    "supabase": "^2.114.0"
+  }
+}

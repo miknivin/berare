@@ -1,0 +1,23 @@
+[
+  {
+    "name": "Hair Oil",
+    "category": "Hair Oil",
+    "price": 499,
+    "status": "active",
+    "description": "Strengthen your hair from root to tip with this nourishing blend of cold-pressed onion oil, argan oil, and rosemary extract, three ingredients long trusted for supporting healthy hair growth. Onion oil is rich in sulphur, which helps improve blood circulation to the scalp and reduce hair fall, while rosemary extract stimulates hair follicles to encourage thicker, fuller-looking hair over time. Argan oil deeply conditions each strand, taming frizz and adding a natural, healthy shine without weighing hair down. Unlike heavy traditional hair oils, this lightweight, fast-absorbing formula won't leave a greasy residue, making it comfortable for regular scalp massages or an overnight treatment. Massage into the scalp two to three times a week, leave in for at least an hour or overnight, and wash out with a gentle shampoo for visibly stronger, shinier hair within weeks."
+  },
+  {
+    "name": "Lip Balm",
+    "category": "Lip Care",
+    "price": 199,
+    "status": "active",
+    "description": "Give dry, chapped lips the intensive care they deserve with this deeply nourishing lip balm, formulated with shea butter, beeswax, and vitamin E. Shea butter is packed with fatty acids that deeply moisturize and repair the delicate skin on your lips, while beeswax forms a protective barrier that locks in hydration and shields lips from harsh weather and pollution throughout the day. Vitamin E adds an extra dose of antioxidant care, helping soothe irritation and support the skin's natural healing process. The smooth, glide-on formula melts effortlessly onto lips without any stickiness, leaving behind a soft, healthy sheen rather than a heavy wax-like coating. Fragrance-free and gentle enough for daily use, it's the perfect everyday companion for keeping lips soft, smooth, and hydrated all year round."
+  },
+  {
+    "name": "Goat Milk Soap",
+    "category": "Soap",
+    "price": 249,
+    "status": "active",
+    "description": "Treat your skin to a gentle, creamy cleanse with this handcrafted goat milk soap, made with real goat milk and shea butter to nourish skin without disturbing its natural balance. Goat milk is naturally rich in vitamins, minerals, and lactic acid, which works to gently exfoliate dead skin cells while deeply moisturizing, leaving skin feeling remarkably soft rather than tight or dry after washing. Shea butter adds an extra layer of hydration and helps soothe rough, sensitive, or easily irritated skin. Unlike commercial soaps that rely on harsh detergents and synthetic fragrances, this cold-processed bar retains the natural goodness of its ingredients, creating a rich, creamy lather that cleanses without stripping. Ideal for daily use on sensitive, dry, or easily irritated skin, it turns an everyday shower into a genuinely nourishing ritual."
+  }
+]
