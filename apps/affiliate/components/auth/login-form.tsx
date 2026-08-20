@@ -71,6 +71,24 @@ export function LoginForm() {
     })
   }
 
+  function handleResendCode() {
+    setError(null)
+    setStatusMessage(null)
+    startTransition(async () => {
+      const supabase = createBrowserClient()
+      const { error: otpErr } = await supabase.auth.signInWithOtp({
+        email,
+        options: { shouldCreateUser: true },
+      })
+      if (otpErr) {
+        setError(friendlyError(otpErr.message))
+        return
+      }
+      setCode("")
+      setStatusMessage(`We sent a new code to ${email}.`)
+    })
+  }
+
   function handleVerifyCode(e: FormEvent) {
     e.preventDefault()
     setError(null)
@@ -152,19 +170,31 @@ export function LoginForm() {
             <Button type="submit" className="w-full h-9" disabled={isPending || code.length !== 6}>
               {isPending ? "Verifying…" : "Verify and sign in"}
             </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              className="w-full h-8 text-xs"
-              onClick={() => {
-                setStep("request")
-                setCode("")
-                setStatusMessage(null)
-                setError(null)
-              }}
-            >
-              Use a different email
-            </Button>
+            <div className="flex items-center justify-center gap-2">
+              <Button
+                type="button"
+                variant="ghost"
+                className="h-8 text-xs"
+                onClick={handleResendCode}
+                disabled={isPending}
+              >
+                Resend code
+              </Button>
+              <span className="text-border text-xs">·</span>
+              <Button
+                type="button"
+                variant="ghost"
+                className="h-8 text-xs"
+                onClick={() => {
+                  setStep("request")
+                  setCode("")
+                  setStatusMessage(null)
+                  setError(null)
+                }}
+              >
+                Use a different email
+              </Button>
+            </div>
           </form>
         )}
 

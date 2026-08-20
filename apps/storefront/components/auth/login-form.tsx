@@ -68,6 +68,24 @@ export function LoginForm() {
     })
   }
 
+  function handleResendCode() {
+    setError(null)
+    setStatusMessage(null)
+    startTransition(async () => {
+      const supabase = createBrowserClient()
+      const { error: otpErr } = await supabase.auth.signInWithOtp({
+        email,
+        options: { shouldCreateUser: true },
+      })
+      if (otpErr) {
+        setError(friendlyError(otpErr.message))
+        return
+      }
+      setCode("")
+      setStatusMessage(`We sent a new code to ${email}.`)
+    })
+  }
+
   function handleVerifyCode(e: FormEvent) {
     e.preventDefault()
     setError(null)
@@ -157,18 +175,29 @@ export function LoginForm() {
           >
             {isPending ? "Verifying…" : "Verify and sign in"}
           </button>
-          <button
-            type="button"
-            onClick={() => {
-              setStep("request")
-              setCode("")
-              setStatusMessage(null)
-              setError(null)
-            }}
-            className="w-full text-sm text-muted-foreground hover:text-foreground underline underline-offset-2"
-          >
-            Use a different email
-          </button>
+          <div className="flex items-center justify-center gap-3 text-sm">
+            <button
+              type="button"
+              onClick={handleResendCode}
+              disabled={isPending}
+              className="text-muted-foreground hover:text-foreground underline underline-offset-2 disabled:opacity-50"
+            >
+              Resend code
+            </button>
+            <span className="text-border">·</span>
+            <button
+              type="button"
+              onClick={() => {
+                setStep("request")
+                setCode("")
+                setStatusMessage(null)
+                setError(null)
+              }}
+              className="text-muted-foreground hover:text-foreground underline underline-offset-2"
+            >
+              Use a different email
+            </button>
+          </div>
         </form>
       )}
 

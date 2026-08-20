@@ -235,18 +235,17 @@ otp_length = 6
 # similar 5-10 minute placeholder for this).
 otp_expiry = 600
 
-# Use a production-ready SMTP server (Resend, per the plan). Fill in real
-# values in the hosted project dashboard — local dev uses Supabase's
-# built-in Inbucket email catcher (viewable in the Supabase Studio URL
-# printed by `supabase start`) instead of sending real email.
-# [auth.email.smtp]
-# enabled = true
-# host = "smtp.resend.com"
-# port = 587
-# user = "resend"
-# pass = "env(RESEND_API_KEY)"
-# admin_email = "hello@berare.com"
-# sender_name = "Berare"
+# Real SMTP via Resend — used for local dev too, so OTP emails actually
+# arrive instead of only being catchable in Inbucket. RESEND_API_KEY is
+# read from supabase/.env (gitignored, never committed).
+[auth.email.smtp]
+enabled = true
+host = "smtp.resend.com"
+port = 587
+user = "resend"
+pass = "env(RESEND_API_KEY)"
+admin_email = "no-reply@mail.berarecosmetics.in"
+sender_name = "Berare"
 
 # Storefront and affiliate both use signInWithOtp for a typed-in 6-digit
 # code, not a clicked magic link — the default template only shows a

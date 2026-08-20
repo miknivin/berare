@@ -57,6 +57,24 @@ export function LoginForm() {
     })
   }
 
+  function handleResendCode() {
+    setError(null)
+    setStatusMessage(null)
+    startTransition(async () => {
+      const supabase = createBrowserClient()
+      const { error: otpErr } = await supabase.auth.signInWithOtp({
+        email,
+        options: { shouldCreateUser: false },
+      })
+      if (otpErr) {
+        setError(friendlyError(otpErr.message))
+        return
+      }
+      setCode("")
+      setStatusMessage(`We sent a new code to ${email}.`)
+    })
+  }
+
   function handleVerifyCode(e: FormEvent) {
     e.preventDefault()
     setError(null)
@@ -120,18 +138,29 @@ export function LoginForm() {
             <Button type="submit" className="w-full h-9" disabled={isPending || code.length !== 6}>
               {isPending ? "Verifying…" : "Verify and sign in"}
             </Button>
-            <button
-              type="button"
-              onClick={() => {
-                setStep("request")
-                setCode("")
-                setStatusMessage(null)
-                setError(null)
-              }}
-              className="w-full text-sm text-muted-foreground hover:text-foreground underline underline-offset-2"
-            >
-              Use a different email
-            </button>
+            <div className="flex items-center justify-center gap-3 text-sm">
+              <button
+                type="button"
+                onClick={handleResendCode}
+                disabled={isPending}
+                className="text-muted-foreground hover:text-foreground underline underline-offset-2 disabled:opacity-50"
+              >
+                Resend code
+              </button>
+              <span className="text-border">·</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setStep("request")
+                  setCode("")
+                  setStatusMessage(null)
+                  setError(null)
+                }}
+                className="text-muted-foreground hover:text-foreground underline underline-offset-2"
+              >
+                Use a different email
+              </button>
+            </div>
           </form>
         )}
 
