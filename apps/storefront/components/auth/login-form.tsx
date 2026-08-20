@@ -8,7 +8,16 @@ import { cn } from "@/lib/utils"
 
 type Step = "request" | "verify"
 
-export function LoginForm() {
+export function LoginForm({
+  onSuccess,
+  heading = "Sign in",
+  subtitle = "Sign in to check out faster and track your orders.",
+}: {
+  /** When provided (e.g. rendered inside a modal), called instead of navigating to `next`. */
+  onSuccess?: () => void
+  heading?: string
+  subtitle?: string
+} = {}) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const next = searchParams.get("next") ?? "/"
@@ -101,17 +110,19 @@ export function LoginForm() {
         setError(friendlyError(verifyErr.message))
         return
       }
-      router.push(next)
-      router.refresh()
+      if (onSuccess) {
+        onSuccess()
+      } else {
+        router.push(next)
+        router.refresh()
+      }
     })
   }
 
   return (
     <div className="w-full max-w-sm">
-      <h1 className="font-heading text-3xl mb-2">Sign in</h1>
-      <p className="text-muted-foreground text-sm mb-8">
-        Sign in to check out faster and track your orders.
-      </p>
+      <h1 className="font-heading text-3xl mb-2">{heading}</h1>
+      <p className="text-muted-foreground text-sm mb-8">{subtitle}</p>
 
       {/* Google sign-in temporarily disabled — not working, re-enable once fixed.
       <button

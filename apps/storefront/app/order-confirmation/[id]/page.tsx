@@ -3,6 +3,7 @@ import Link from "next/link"
 import { CheckCircle2, Clock } from "lucide-react"
 import { getOrderById } from "@/lib/data/orders"
 import { formatPrice } from "@/lib/format"
+import { ORDER_STATUS_LABEL, ORDER_STATUS_CLASS } from "@/lib/order-status"
 import { OrderStatusPoller } from "@/components/checkout/order-status-poller"
 
 export default async function OrderConfirmationPage({
@@ -40,6 +41,11 @@ export default async function OrderConfirmationPage({
         <p className="mt-1 text-xs text-muted-foreground">
           {order.payment_method === "cod" ? "Cash on Delivery" : "Paid online via Razorpay"}
         </p>
+        <span
+          className={`inline-block mt-3 text-xs font-medium px-2.5 py-1 rounded-full ${ORDER_STATUS_CLASS[order.status] ?? "bg-muted text-muted-foreground"}`}
+        >
+          {ORDER_STATUS_LABEL[order.status] ?? order.status}
+        </span>
       </div>
 
       <div className="rounded-xl border border-border p-6 mb-6">

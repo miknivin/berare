@@ -254,6 +254,13 @@ sender_name = "Berare"
 subject = "Your Berare login code"
 content_path = "./supabase/templates/magic_link.html"
 
+# signInWithOtp routes brand-new emails (first-ever sign-in, shouldCreateUser:
+# true) through GoTrue's "confirmation" (signup) template instead of
+# magic_link — same code-in-email need, different template slot.
+[auth.email.template.confirmation]
+subject = "Your Berare verification code"
+content_path = "./supabase/templates/confirmation.html"
+
 # Uncomment to customize notification email template
 # [auth.email.notification.password_changed]
 # enabled = true

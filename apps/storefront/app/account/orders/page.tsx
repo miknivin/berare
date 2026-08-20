@@ -1,43 +1,17 @@
-import { redirect } from "next/navigation"
 import Link from "next/link"
 import type { Metadata } from "next"
 import { Package } from "lucide-react"
-import { createServerSupabaseClient } from "@berare/db/server"
 import { getOrdersForCurrentUser } from "@/lib/data/orders"
 import { formatPrice } from "@/lib/format"
+import { ORDER_STATUS_LABEL, ORDER_STATUS_CLASS } from "@/lib/order-status"
 
 export const metadata: Metadata = { title: "Your Orders" }
 
-const STATUS_LABEL: Record<string, string> = {
-  pending: "Pending",
-  confirmed: "Confirmed",
-  shipped: "Shipped",
-  delivered: "Delivered",
-  cancelled: "Cancelled",
-}
-
-const STATUS_CLASS: Record<string, string> = {
-  pending: "bg-muted text-muted-foreground",
-  confirmed: "bg-primary/10 text-primary",
-  shipped: "bg-primary/10 text-primary",
-  delivered: "bg-green-100 text-green-700",
-  cancelled: "bg-destructive/10 text-destructive",
-}
-
 export default async function OrdersPage() {
-  const supabase = await createServerSupabaseClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    redirect("/auth/login?next=/account/orders")
-  }
-
   const orders = await getOrdersForCurrentUser()
 
   return (
-    <div className="mx-auto max-w-3xl px-4 md:px-6 py-12">
+    <div>
       <h1 className="font-heading text-2xl md:text-3xl mb-8">Your Orders</h1>
 
       {orders.length === 0 ? (
@@ -72,9 +46,9 @@ export default async function OrdersPage() {
                 </div>
                 <div className="flex items-center gap-3">
                   <span
-                    className={`text-xs font-medium px-2.5 py-1 rounded-full ${STATUS_CLASS[order.status] ?? "bg-muted text-muted-foreground"}`}
+                    className={`text-xs font-medium px-2.5 py-1 rounded-full ${ORDER_STATUS_CLASS[order.status] ?? "bg-muted text-muted-foreground"}`}
                   >
-                    {STATUS_LABEL[order.status] ?? order.status}
+                    {ORDER_STATUS_LABEL[order.status] ?? order.status}
                   </span>
                   <span className="text-sm font-medium">{formatPrice(order.total_amount)}</span>
                 </div>

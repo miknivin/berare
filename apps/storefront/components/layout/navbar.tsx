@@ -5,6 +5,7 @@ import { createServerSupabaseClient } from "@berare/db/server"
 import { getCategories } from "@/lib/data/categories"
 import { MobileMenu } from "./mobile-menu"
 import { SearchBar } from "./search-bar"
+import { UserMenuButton } from "./user-menu-button"
 import { CartIndicator } from "@/components/cart/cart-indicator"
 
 export async function Navbar() {
@@ -48,21 +49,7 @@ export async function Navbar() {
             <Suspense>
               <SearchBar />
             </Suspense>
-            {user ? (
-              <Link
-                href="/"
-                className="hidden md:block text-sm font-medium px-3 py-2 hover:text-primary transition-colors"
-              >
-                {user.email}
-              </Link>
-            ) : (
-              <Link
-                href="/auth/login"
-                className="hidden md:block text-sm font-medium px-3 py-2 hover:text-primary transition-colors"
-              >
-                Sign in
-              </Link>
-            )}
+            <UserMenuButton isLoggedIn={!!user} />
             <CartIndicator />
           </div>
         </div>

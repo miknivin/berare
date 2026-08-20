@@ -99,7 +99,7 @@ export function MobileMenu({
             <div className="p-4 border-t border-border">
               {userEmail ? (
                 <Link
-                  href="/"
+                  href="/account"
                   onClick={() => setOpen(false)}
                   className="block py-2 text-sm min-h-11"
                 >
