@@ -36,3 +36,24 @@ export async function getOrderById(id: string): Promise<OrderDetail | null> {
   if (error) throw error
   return data as OrderDetail | null
 }
+
+export type OrderListItem = {
+  id: string
+  status: string
+  payment_method: "razorpay" | "cod"
+  total_amount: number
+  created_at: string
+}
+
+// Uses the session-scoped client, not service-role — RLS ("orders: read
+// own") is what actually keeps this safe, not the query itself.
+export async function getOrdersForCurrentUser(): Promise<OrderListItem[]> {
+  const supabase = await createServerSupabaseClient()
+  const { data, error } = await supabase
+    .from("orders")
+    .select("id, status, payment_method, total_amount, created_at")
+    .order("created_at", { ascending: false })
+
+  if (error) throw error
+  return data as OrderListItem[]
+}
