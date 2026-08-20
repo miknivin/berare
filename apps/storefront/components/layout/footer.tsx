@@ -12,7 +12,7 @@ export async function Footer() {
     <footer className="border-t border-border bg-muted/40 mt-24">
       <div className="mx-auto max-w-7xl px-4 md:px-6 py-12 grid grid-cols-2 md:grid-cols-4 gap-8">
         <div>
-          <Image src="/logo.png" alt="Berare" width={300} height={166} className="h-8 w-auto" />
+          <Image src="/logo.png" alt="Berare" width={300} height={166} className="h-10 w-auto" />
           <p className="mt-3 text-sm text-muted-foreground">Cosmetics, delivered across India.</p>
         </div>
 

@@ -25,7 +25,7 @@ export async function Navbar() {
           <div className="flex items-center gap-2">
             <MobileMenu categories={categories} userEmail={user?.email ?? null} />
             <Link href="/" className="flex items-center">
-              <Image src="/logo.png" alt="Berare" width={300} height={166} priority className="h-9 w-auto" />
+              <Image src="/logo.png" alt="Berare" width={300} height={166} priority className="h-12 w-auto" />
             </Link>
           </div>
 
