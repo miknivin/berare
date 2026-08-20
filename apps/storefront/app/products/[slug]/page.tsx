@@ -3,7 +3,7 @@ import Link from "next/link"
 import type { Metadata } from "next"
 import { ShieldCheck, Truck } from "lucide-react"
 import { getProductBySlug, getRelatedProducts } from "@/lib/data/products"
-import { ProductImage } from "@/components/product/product-image"
+import { ProductGallery } from "@/components/product/product-gallery"
 import { ProductGrid } from "@/components/product/product-grid"
 import { AddToCartButton } from "@/components/product/add-to-cart-button"
 import { formatPrice } from "@/lib/format"
@@ -64,11 +64,10 @@ export default async function ProductPage({
       </nav>
 
       <div className="grid md:grid-cols-2 gap-8 md:gap-12">
-        <ProductImage
+        <ProductGallery
           images={product.product_images}
           alt={product.name}
-          className="aspect-square rounded-2xl w-full"
-          priority
+          className="aspect-square"
         />
 
         <div>

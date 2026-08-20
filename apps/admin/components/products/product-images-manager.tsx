@@ -3,6 +3,9 @@
 import { useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
+import Lightbox from "yet-another-react-lightbox"
+import Zoom from "yet-another-react-lightbox/plugins/zoom"
+import "yet-another-react-lightbox/styles.css"
 import { X, Upload } from "lucide-react"
 import { toast } from "@/components/ui/toast"
 import { ConfirmDialog } from "@/components/shared/confirm-dialog"
@@ -23,6 +26,7 @@ export function ProductImagesManager({
   const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isUploading, setIsUploading] = useState(false)
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -75,15 +79,22 @@ export function ProductImagesManager({
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-        {images.map((image) => (
-          <div key={image.id} className="relative aspect-square rounded-lg overflow-hidden bg-muted">
-            <Image src={image.publicUrl} alt="" fill className="object-cover" sizes="150px" />
+        {images.map((image, index) => (
+          <div key={image.id} className="relative aspect-square rounded-lg overflow-hidden bg-muted group">
+            <button
+              type="button"
+              onClick={() => setLightboxIndex(index)}
+              aria-label="View full-size image"
+              className="absolute inset-0 z-0 cursor-zoom-in"
+            >
+              <Image src={image.publicUrl} alt="" fill className="object-cover" sizes="150px" />
+            </button>
             <ConfirmDialog
               trigger={
                 <button
                   type="button"
                   aria-label="Delete image"
-                  className="absolute top-1 right-1 w-6 h-6 flex items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80"
+                  className="absolute top-1 right-1 z-10 w-6 h-6 flex items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80"
                 >
                   <X className="w-3.5 h-3.5" aria-hidden="true" />
                 </button>
@@ -113,6 +124,16 @@ export function ProductImagesManager({
         accept="image/jpeg,image/png,image/webp"
         onChange={handleFileChange}
         className="hidden"
+      />
+
+      <Lightbox
+        open={lightboxIndex !== null}
+        close={() => setLightboxIndex(null)}
+        index={lightboxIndex ?? 0}
+        slides={images.map((img) => ({ src: img.publicUrl }))}
+        plugins={[Zoom]}
+        on={{ view: ({ index }) => setLightboxIndex(index) }}
+        zoom={{ maxZoomPixelRatio: 3 }}
       />
     </div>
   )

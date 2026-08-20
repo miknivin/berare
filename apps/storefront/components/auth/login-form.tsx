@@ -3,7 +3,7 @@
 import { useState, useTransition, type FormEvent } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { createBrowserClient } from "@berare/db/browser"
-import { GoogleIcon } from "@/components/icons/google-icon"
+// import { GoogleIcon } from "@/components/icons/google-icon"
 import { cn } from "@/lib/utils"
 
 type Step = "request" | "verify"
@@ -32,23 +32,24 @@ export function LoginForm() {
     return "Something went wrong. Please try again."
   }
 
-  async function handleGoogleSignIn() {
-    setError(null)
-    const supabase = createBrowserClient()
-    const { data, error: oauthErr } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
-      },
-    })
-    if (oauthErr) {
-      setError(friendlyError(oauthErr.message))
-      return
-    }
-    if (data?.url) {
-      window.location.href = data.url
-    }
-  }
+  // Google sign-in temporarily disabled — not working, re-enable once fixed.
+  // async function handleGoogleSignIn() {
+  //   setError(null)
+  //   const supabase = createBrowserClient()
+  //   const { data, error: oauthErr } = await supabase.auth.signInWithOAuth({
+  //     provider: "google",
+  //     options: {
+  //       redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
+  //     },
+  //   })
+  //   if (oauthErr) {
+  //     setError(friendlyError(oauthErr.message))
+  //     return
+  //   }
+  //   if (data?.url) {
+  //     window.location.href = data.url
+  //   }
+  // }
 
   function handleRequestCode(e: FormEvent) {
     e.preventDefault()
@@ -112,6 +113,7 @@ export function LoginForm() {
         Sign in to check out faster and track your orders.
       </p>
 
+      {/* Google sign-in temporarily disabled — not working, re-enable once fixed.
       <button
         type="button"
         onClick={handleGoogleSignIn}
@@ -127,6 +129,7 @@ export function LoginForm() {
         <span className="text-xs text-muted-foreground uppercase tracking-wide">or</span>
         <div className="h-px flex-1 bg-border" />
       </div>
+      */}
 
       {step === "request" ? (
         <form onSubmit={handleRequestCode} className="space-y-3">
