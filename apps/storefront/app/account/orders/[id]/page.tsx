@@ -1,12 +1,14 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
-import { CheckCircle2, Clock, ArrowLeft } from "lucide-react"
+import type { Metadata } from "next"
+import { ArrowLeft } from "lucide-react"
 import { getOrderById } from "@/lib/data/orders"
 import { formatPrice } from "@/lib/format"
 import { ORDER_STATUS_LABEL, ORDER_STATUS_CLASS } from "@/lib/order-status"
-import { OrderStatusPoller } from "@/components/checkout/order-status-poller"
 
-export default async function OrderConfirmationPage({
+export const metadata: Metadata = { title: "Order Details" }
+
+export default async function AccountOrderDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>
@@ -15,12 +17,8 @@ export default async function OrderConfirmationPage({
   const order = await getOrderById(id)
   if (!order) notFound()
 
-  const isConfirmed = order.status !== "pending"
-
   return (
-    <div className="mx-auto max-w-2xl px-4 md:px-6 py-16">
-      <OrderStatusPoller status={order.status} />
-
+    <div>
       <Link
         href="/account/orders"
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6"
@@ -29,32 +27,23 @@ export default async function OrderConfirmationPage({
         Back to Orders
       </Link>
 
-      <div className="text-center mb-10">
-        {isConfirmed ? (
-          <CheckCircle2 className="w-12 h-12 text-primary mx-auto mb-4" aria-hidden="true" />
-        ) : (
-          <Clock className="w-12 h-12 text-muted-foreground mx-auto mb-4" aria-hidden="true" />
-        )}
-        <h1 className="font-heading text-3xl mb-2" aria-live="polite">
-          {isConfirmed ? "Order Confirmed!" : "Confirming your payment…"}
-        </h1>
-        <p className="text-muted-foreground">
-          {isConfirmed
-            ? "Thank you for your purchase. We've received your order."
-            : "This usually takes a few seconds. This page will update automatically."}
-        </p>
-        <p className="mt-4 text-sm">
-          Order Number: <span className="font-medium select-all">{order.id}</span>
-        </p>
-        <p className="mt-1 text-xs text-muted-foreground">
-          {order.payment_method === "cod" ? "Cash on Delivery" : "Paid online via Razorpay"}
-        </p>
+      <div className="flex items-center justify-between gap-4 mb-1">
+        <h1 className="font-heading text-2xl md:text-3xl font-mono">{order.id.slice(0, 8)}</h1>
         <span
-          className={`inline-block mt-3 text-xs font-medium px-2.5 py-1 rounded-full ${ORDER_STATUS_CLASS[order.status] ?? "bg-muted text-muted-foreground"}`}
+          className={`text-xs font-medium px-2.5 py-1 rounded-full shrink-0 ${ORDER_STATUS_CLASS[order.status] ?? "bg-muted text-muted-foreground"}`}
         >
           {ORDER_STATUS_LABEL[order.status] ?? order.status}
         </span>
       </div>
+      <p className="text-sm text-muted-foreground mb-8">
+        Placed on{" "}
+        {new Date(order.created_at).toLocaleDateString("en-IN", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        })}{" "}
+        &middot; {order.payment_method === "cod" ? "Cash on Delivery" : "Paid online via Razorpay"}
+      </p>
 
       <div className="rounded-xl border border-border p-6 mb-6">
         <h2 className="text-sm font-medium mb-4">Items</h2>
@@ -74,7 +63,7 @@ export default async function OrderConfirmationPage({
         </div>
       </div>
 
-      <div className="rounded-xl border border-border p-6 mb-10">
+      <div className="rounded-xl border border-border p-6">
         <h2 className="text-sm font-medium mb-2">Shipping Address</h2>
         <p className="text-sm text-muted-foreground">
           {order.shipping_address.fullName}
@@ -87,13 +76,6 @@ export default async function OrderConfirmationPage({
           {order.shipping_address.phone}
         </p>
       </div>
-
-      <Link
-        href="/products"
-        className="w-full min-h-12 flex items-center justify-center rounded-full bg-primary text-primary-foreground px-6 py-3 text-sm font-medium hover:bg-primary-hover transition-colors"
-      >
-        Continue Shopping
-      </Link>
     </div>
   )
 }

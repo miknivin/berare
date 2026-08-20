@@ -30,7 +30,7 @@ export default async function OrdersPage() {
           {orders.map((order) => (
             <li key={order.id}>
               <Link
-                href={`/order-confirmation/${order.id}`}
+                href={`/account/orders/${order.id}`}
                 className="flex items-center justify-between gap-4 rounded-xl border border-border p-4 hover:border-primary/40 transition-colors"
               >
                 <div>

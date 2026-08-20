@@ -35,7 +35,7 @@ export default async function AccountPage() {
             {recentOrders.map((order) => (
               <li key={order.id}>
                 <Link
-                  href={`/order-confirmation/${order.id}`}
+                  href={`/account/orders/${order.id}`}
                   className="flex items-center justify-between gap-4 rounded-lg border border-border p-3 hover:border-primary/40 transition-colors text-sm"
                 >
                   <span className="font-mono text-xs text-muted-foreground">{order.id.slice(0, 8)}</span>
