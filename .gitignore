@@ -19,6 +19,7 @@ supabase/.temp
 .DS_Store
 *.pem
 npm-debug.log*
+client_secret_*.json
 
 # local tooling (downloaded binaries, not source)
 .tools/

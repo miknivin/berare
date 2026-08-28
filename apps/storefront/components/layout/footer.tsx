@@ -60,13 +60,11 @@ export async function Footer() {
                 Contact Us
               </Link>
             </li>
-            {/* Become an Affiliate — commented out, /affiliate-apply hasn't been built yet.
             <li>
               <Link href="/affiliate-apply" className="text-sm text-muted-foreground hover:text-foreground">
                 Become an Affiliate
               </Link>
             </li>
-            */}
           </ul>
         </nav>
 
