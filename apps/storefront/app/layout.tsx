@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { Inter, Manrope } from "next/font/google";
 import { QueryProvider } from "@/components/providers/query-provider";
@@ -35,7 +36,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <AnnouncementBar />
           <Navbar />
           <main className="flex-1 flex flex-col">{children}</main>
-          <Footer />
+          <Suspense fallback={null}>
+            <Footer />
+          </Suspense>
         </QueryProvider>
       </body>
     </html>
