@@ -43,6 +43,7 @@ export function HeroSwiper({ banners }: { banners: HeroBanner[] }) {
                 direction="vertical"
                 autoplay={banners.length > 1 ? AUTOPLAY_CONFIG : false}
                 loop={banners.length > 1}
+                spaceBetween={40}
                 speed={700}
               >
                 {banners.map((banner, index) => (

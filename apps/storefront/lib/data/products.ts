@@ -68,14 +68,35 @@ export async function getRelatedProducts(categoryId: string | null, excludeProdu
   if (!categoryId) return []
 
   const supabase = await createServerSupabaseClient()
+
+  // If this product's category is itself a subcategory, also pull from
+  // its parent — a subcategory alone often doesn't have enough products
+  // to fill "You May Also Like" on its own.
+  const { data: category } = await supabase
+    .from("categories")
+    .select("parent_id")
+    .eq("id", categoryId)
+    .maybeSingle()
+
+  const categoryIds = category?.parent_id ? [categoryId, category.parent_id] : [categoryId]
+
   const { data, error } = await supabase
     .from("products")
     .select("id, name, slug, price, compare_at_price, currency, category_id, product_images(id, storage_path, position)")
     .eq("status", "active")
-    .eq("category_id", categoryId)
+    .in("category_id", categoryIds)
     .neq("id", excludeProductId)
-    .limit(4)
+    .limit(8)
 
   if (error) throw error
-  return (data ?? []) as ProductListItem[]
+
+  // Exact subcategory matches first, parent-category ones filling the
+  // rest — never the other way around.
+  const sorted = [...(data ?? [])].sort((a, b) => {
+    const aIsExact = a.category_id === categoryId ? 0 : 1
+    const bIsExact = b.category_id === categoryId ? 0 : 1
+    return aIsExact - bIsExact
+  })
+
+  return sorted.slice(0, 4) as ProductListItem[]
 }
