@@ -77,8 +77,7 @@ drop function create_seed_user(text, text, text);
 insert into public.categories (id, name, slug) values
   ('c1a1e1e1-0000-0000-0000-000000000001', 'Skincare', 'skincare'),
   ('c1a1e1e1-0000-0000-0000-000000000002', 'Makeup', 'makeup'),
-  ('c1a1e1e1-0000-0000-0000-000000000003', 'Haircare', 'haircare'),
-  ('c1a1e1e1-0000-0000-0000-000000000004', 'Fragrance', 'fragrance');
+  ('c1a1e1e1-0000-0000-0000-000000000003', 'Haircare', 'haircare');
 
 insert into public.products (name, slug, description, price, status, category_id) values
   ('Vitamin C Brightening Serum', 'vitamin-c-brightening-serum', 'A lightweight daily serum with 15% vitamin C to even skin tone and add radiance.', 899, 'active', 'c1a1e1e1-0000-0000-0000-000000000001'),
@@ -91,6 +90,4 @@ insert into public.products (name, slug, description, price, status, category_id
   ('Compact Powder - Natural', 'compact-powder-natural', 'Oil-absorbing pressed powder for a soft-focus, shine-free finish.', 399, 'active', 'c1a1e1e1-0000-0000-0000-000000000002'),
   ('Argan Oil Hair Serum', 'argan-oil-hair-serum', 'Frizz-control serum with argan oil for smooth, glossy hair.', 649, 'active', 'c1a1e1e1-0000-0000-0000-000000000003'),
   ('Anti-Dandruff Shampoo', 'anti-dandruff-shampoo', 'Gentle daily shampoo that controls dandruff without stripping the scalp.', 399, 'active', 'c1a1e1e1-0000-0000-0000-000000000003'),
-  ('Keratin Hair Mask', 'keratin-hair-mask', 'Weekly deep-conditioning mask that repairs damaged, chemically treated hair.', 799, 'active', 'c1a1e1e1-0000-0000-0000-000000000003'),
-  ('Eau de Parfum - Jasmine Bloom', 'eau-de-parfum-jasmine-bloom', 'A floral eau de parfum with notes of jasmine, white musk, and sandalwood.', 1799, 'active', 'c1a1e1e1-0000-0000-0000-000000000004'),
-  ('Body Mist - Citrus Fresh', 'body-mist-citrus-fresh', 'A light, all-day body mist with notes of citrus and green tea.', 599, 'active', 'c1a1e1e1-0000-0000-0000-000000000004');
+  ('Keratin Hair Mask', 'keratin-hair-mask', 'Weekly deep-conditioning mask that repairs damaged, chemically treated hair.', 799, 'active', 'c1a1e1e1-0000-0000-0000-000000000003');

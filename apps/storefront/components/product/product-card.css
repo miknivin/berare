@@ -1,0 +1,66 @@
+/* Same inverted-tilt language as the category cards: tilted + layered
+   depth at rest, flattens on hover. Toned down from the category card's
+   angle/depth since product grids show many tiles at once — the full
+   category-card intensity would feel busy repeated 8-20 times on a
+   listing page. No image blur on hover here, unlike category cards —
+   people hover a product photo to look closer, not have it blur. */
+
+.product-card-parent {
+  position: relative;
+  perspective: 900px;
+}
+
+/* Deliberately outside the tilt/translateZ hierarchy — these are
+   functional controls (add to cart, wishlist), not decorative content,
+   and stay flat/stable so they're easy to tap precisely regardless of
+   how the card underneath is tilted. */
+.product-card__actions {
+  z-index: 10;
+}
+
+.product-card {
+  display: block;
+  transform-style: preserve-3d;
+  transform: rotate3d(0.5, 1, 0, 8deg);
+  transition: transform 0.5s ease-in-out;
+}
+
+.product-card:hover {
+  transform: rotate3d(0, 0, 0, 0deg);
+}
+
+.product-card__image {
+  transform: translate3d(0, 0, 20px);
+  transition: transform 0.5s ease-in-out;
+}
+
+.product-card:hover .product-card__image {
+  transform: translate3d(0, 0, 35px);
+}
+
+.product-card__info {
+  transform-style: preserve-3d;
+  transform: translate3d(0, 0, 8px);
+  transition: transform 0.5s ease-in-out;
+}
+
+.product-card:hover .product-card__info {
+  transform: translate3d(0, 0, 25px);
+}
+
+.product-card__title {
+  transition: color 0.3s ease-in-out;
+}
+
+.product-card:hover .product-card__title {
+  color: var(--color-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .product-card,
+  .product-card__image,
+  .product-card__info {
+    transform: none !important;
+    transition: none !important;
+  }
+}

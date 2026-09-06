@@ -281,29 +281,38 @@ export type Database = {
         Row: {
           alt_text: string
           created_at: string
+          cta_label: string | null
+          description: string | null
           id: string
           image_path: string
           is_active: boolean
           link_url: string | null
           position: number
+          title: string
         }
         Insert: {
           alt_text?: string
           created_at?: string
+          cta_label?: string | null
+          description?: string | null
           id?: string
           image_path: string
           is_active?: boolean
           link_url?: string | null
           position?: number
+          title?: string
         }
         Update: {
           alt_text?: string
           created_at?: string
+          cta_label?: string | null
+          description?: string | null
           id?: string
           image_path?: string
           is_active?: boolean
           link_url?: string | null
           position?: number
+          title?: string
         }
         Relationships: []
       }
@@ -475,9 +484,61 @@ export type Database = {
           },
         ]
       }
+      product_reviews: {
+        Row: {
+          body: string
+          created_at: string
+          customer_id: string
+          id: string
+          product_id: string
+          rating: number
+          reviewer_name: string
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          customer_id: string
+          id?: string
+          product_id: string
+          rating: number
+          reviewer_name: string
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          customer_id?: string
+          id?: string
+          product_id?: string
+          rating?: number
+          reviewer_name?: string
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_reviews_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_reviews_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           category_id: string | null
+          compare_at_price: number | null
           created_at: string
           currency: string
           description: string | null
@@ -490,6 +551,7 @@ export type Database = {
         }
         Insert: {
           category_id?: string | null
+          compare_at_price?: number | null
           created_at?: string
           currency?: string
           description?: string | null
@@ -502,6 +564,7 @@ export type Database = {
         }
         Update: {
           category_id?: string | null
+          compare_at_price?: number | null
           created_at?: string
           currency?: string
           description?: string | null
@@ -567,6 +630,39 @@ export type Database = {
           created_at?: string
           id?: string
           role?: string
+        }
+        Relationships: []
+      }
+      testimonials: {
+        Row: {
+          body: string
+          created_at: string
+          customer_name: string
+          display_order: number
+          id: string
+          is_active: boolean
+          rating: number
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          customer_name: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          rating: number
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          customer_name?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          rating?: number
+          updated_at?: string
         }
         Relationships: []
       }

@@ -1,0 +1,25 @@
+/* A vertical Swiper scoped to just the mockup image — its native slide
+   transition already is a push: the outgoing image moves up and out
+   while the incoming one rises from below, in one engine, at one speed. */
+
+/* Idle "levitating" bob for whichever mockup is currently at rest — a
+   slight rotation alternating each half of the cycle keeps it from
+   reading as a mechanical straight-line bounce. */
+@keyframes hero-levitate {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(2deg);
+  }
+}
+
+.swiper-slide-active .hero-banner__mockup-image {
+  animation: hero-levitate 3.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .swiper-slide-active .hero-banner__mockup-image {
+    animation: none !important;
+  }
+}

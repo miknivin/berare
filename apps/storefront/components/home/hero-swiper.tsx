@@ -1,103 +1,79 @@
 "use client"
 
-import { useEffect, useRef, useState, useCallback } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { Swiper, SwiperSlide } from "swiper/react"
+import { Autoplay } from "swiper/modules"
+import "swiper/css"
+import "./hero-swiper.css"
 import type { HeroBanner } from "@/lib/data/hero-banners"
 
-const AUTOPLAY_MS = 5000
+const AUTOPLAY_MS = 3000
+const AUTOPLAY_CONFIG = { delay: AUTOPLAY_MS, disableOnInteraction: false, pauseOnMouseEnter: false }
 
+// Content is static and identical for every visitor — only the product
+// mockups cycle — so the swiper is scoped to just the image column. Text
+// needs no per-slide logic or animation since it never changes.
 export function HeroSwiper({ banners }: { banners: HeroBanner[] }) {
-  const scrollerRef = useRef<HTMLDivElement>(null)
-  const [activeIndex, setActiveIndex] = useState(0)
-
-  const scrollToIndex = useCallback((index: number) => {
-    const el = scrollerRef.current
-    if (!el) return
-    el.scrollTo({ left: index * el.clientWidth, behavior: "smooth" })
-  }, [])
-
-  // Autoplay — advances until the user starts interacting (swipe/click
-  // updates activeIndex too, so this just keeps chaining off it).
-  useEffect(() => {
-    if (banners.length <= 1) return
-    const interval = setInterval(() => {
-      setActiveIndex((prev) => {
-        const next = (prev + 1) % banners.length
-        scrollToIndex(next)
-        return next
-      })
-    }, AUTOPLAY_MS)
-    return () => clearInterval(interval)
-  }, [banners.length, scrollToIndex])
-
-  // Keeps the dots in sync when the user swipes manually instead of
-  // clicking a dot.
-  function handleScroll() {
-    const el = scrollerRef.current
-    if (!el || el.clientWidth === 0) return
-    const index = Math.round(el.scrollLeft / el.clientWidth)
-    setActiveIndex(index)
-  }
-
-  if (banners.length === 0) return null
-
   return (
-    <div className="relative">
-      <div
-        ref={scrollerRef}
-        onScroll={handleScroll}
-        className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-      >
-        {banners.map((banner, index) => {
-          const image = (
-            <div className="relative w-full aspect-4/3 sm:aspect-21/9">
-              <Image
-                src={banner.imageUrl}
-                alt={banner.altText}
-                fill
-                priority={index === 0}
-                loading={index === 0 ? undefined : "lazy"}
-                className="object-cover"
-                sizes="100vw"
+    <div className="bg-muted">
+      <div className="mx-auto max-w-7xl grid md:grid-cols-2 gap-8 md:gap-16 items-center px-6 md:px-12 py-16 md:py-28 min-h-130 md:min-h-160">
+        <div className="order-2 md:order-1 flex flex-col items-center md:items-start text-center md:text-left gap-4 md:gap-5">
+          <h1 className="font-heading font-bold text-3xl md:text-5xl leading-tight">
+            Science-Backed Beauty, For Everyone
+          </h1>
+          <p className="text-muted-foreground text-base md:text-lg max-w-md">
+            Explore our full range of skincare and beauty essentials, formulated for real results and delivered
+            across India.
+          </p>
+          <Link
+            href="/products"
+            className="min-h-11 inline-flex items-center rounded-full bg-primary text-primary-foreground px-6 py-3 text-sm font-medium hover:bg-primary-hover transition-colors"
+          >
+            Shop All Products
+          </Link>
+        </div>
+
+        {banners.length > 0 && (
+          <div className="order-1 md:order-2">
+            <div className="hero-banner__mockup-frame relative w-full aspect-square max-w-72 md:max-w-lg mx-auto overflow-hidden">
+              <Swiper
+                className="hero-swiper w-full h-full"
+                modules={[Autoplay]}
+                direction="vertical"
+                autoplay={banners.length > 1 ? AUTOPLAY_CONFIG : false}
+                loop={banners.length > 1}
+                speed={700}
+              >
+                {banners.map((banner, index) => (
+                  <SwiperSlide key={banner.id}>
+                    <div className="hero-banner__mockup-image relative w-full h-full">
+                      <Image
+                        src={banner.imageUrl}
+                        alt={banner.altText}
+                        fill
+                        priority={index === 0}
+                        loading={index === 0 ? undefined : "lazy"}
+                        className="object-contain"
+                        sizes="(min-width: 768px) 40vw, 80vw"
+                      />
+                    </div>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+
+              <div
+                className="absolute inset-x-0 top-0 h-14 md:h-20 bg-linear-to-b from-muted to-transparent pointer-events-none z-10"
+                aria-hidden="true"
+              />
+              <div
+                className="absolute inset-x-0 bottom-0 h-14 md:h-20 bg-linear-to-t from-muted to-transparent pointer-events-none z-10"
+                aria-hidden="true"
               />
             </div>
-          )
-
-          return (
-            <div key={banner.id} className="w-full shrink-0 snap-start">
-              {banner.linkUrl ? (
-                <Link href={banner.linkUrl} aria-label={banner.altText}>
-                  {image}
-                </Link>
-              ) : (
-                image
-              )}
-            </div>
-          )
-        })}
+          </div>
+        )}
       </div>
-
-      {banners.length > 1 && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2" role="tablist" aria-label="Banner slides">
-          {banners.map((banner, i) => (
-            <button
-              key={banner.id}
-              type="button"
-              role="tab"
-              aria-selected={i === activeIndex}
-              aria-label={`Go to slide ${i + 1}`}
-              onClick={() => {
-                setActiveIndex(i)
-                scrollToIndex(i)
-              }}
-              className={`w-2 h-2 rounded-full transition-colors ${
-                i === activeIndex ? "bg-white" : "bg-white/50"
-              }`}
-            />
-          ))}
-        </div>
-      )}
     </div>
   )
 }

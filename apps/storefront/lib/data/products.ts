@@ -13,6 +13,7 @@ export type ProductListItem = {
   name: string
   slug: string
   price: number
+  compare_at_price: number | null
   currency: string
   category_id: string | null
   product_images: ProductImage[]
@@ -31,7 +32,7 @@ export async function getProducts(filters: ProductFilters) {
 
   const baseQuery = supabase
     .from("products")
-    .select("id, name, slug, price, currency, category_id, product_images(id, storage_path, position)", {
+    .select("id, name, slug, price, compare_at_price, currency, category_id, product_images(id, storage_path, position)", {
       count: "exact",
     })
     .eq("status", "active")
@@ -53,7 +54,7 @@ export async function getProductBySlug(slug: string): Promise<ProductDetail | nu
   const { data, error } = await supabase
     .from("products")
     .select(
-      "id, name, slug, description, price, currency, category_id, product_images(id, storage_path, position), categories(id, name, slug)"
+      "id, name, slug, description, price, compare_at_price, currency, category_id, product_images(id, storage_path, position), categories(id, name, slug)"
     )
     .eq("slug", slug)
     .eq("status", "active")
@@ -69,7 +70,7 @@ export async function getRelatedProducts(categoryId: string | null, excludeProdu
   const supabase = await createServerSupabaseClient()
   const { data, error } = await supabase
     .from("products")
-    .select("id, name, slug, price, currency, category_id, product_images(id, storage_path, position)")
+    .select("id, name, slug, price, compare_at_price, currency, category_id, product_images(id, storage_path, position)")
     .eq("status", "active")
     .eq("category_id", categoryId)
     .neq("id", excludeProductId)

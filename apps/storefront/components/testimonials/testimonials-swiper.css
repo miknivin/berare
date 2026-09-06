@@ -1,0 +1,21 @@
+.testimonials-swiper {
+  padding-bottom: 2.5rem;
+}
+
+.testimonials-swiper .swiper-pagination {
+  bottom: 0;
+}
+
+.testimonials-swiper .swiper-pagination-bullet {
+  width: 0.5rem;
+  height: 0.5rem;
+  background: var(--color-primary);
+  opacity: 0.3;
+  transition: opacity 0.2s, width 0.2s;
+  border-radius: 999px;
+}
+
+.testimonials-swiper .swiper-pagination-bullet-active {
+  opacity: 1;
+  width: 1.5rem;
+}

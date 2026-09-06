@@ -12,33 +12,36 @@ export type CartItem = {
 
 type CartState = {
   items: CartItem[]
+  isOpen: boolean
   addItem: (item: Omit<CartItem, "quantity">, quantity?: number) => void
   removeItem: (productId: string) => void
   updateQuantity: (productId: string, quantity: number) => void
   clearCart: () => void
+  setItems: (items: CartItem[]) => void
+  openCart: () => void
+  closeCart: () => void
 }
 
 // Client-side only for now, per plan §5 — no persistent server-side cart
 // table for MVP. Checkout re-validates price/availability server-side
-// against product_id; nothing here is trusted at order time.
+// against product_id; nothing here is trusted at order time. setItems()
+// exists specifically for CartValidator to silently reconcile stored
+// items against the current database on app load.
 export const useCartStore = create<CartState>()(
   persist(
     (set) => ({
       items: [],
+      isOpen: false,
 
       addItem: (item, quantity = 1) =>
         set((state) => {
           const existing = state.items.find((i) => i.productId === item.productId)
-          if (existing) {
-            return {
-              items: state.items.map((i) =>
-                i.productId === item.productId
-                  ? { ...i, quantity: i.quantity + quantity }
-                  : i
-              ),
-            }
-          }
-          return { items: [...state.items, { ...item, quantity }] }
+          const items = existing
+            ? state.items.map((i) =>
+                i.productId === item.productId ? { ...i, quantity: i.quantity + quantity } : i
+              )
+            : [...state.items, { ...item, quantity }]
+          return { items, isOpen: true }
         }),
 
       removeItem: (productId) =>
@@ -59,8 +62,19 @@ export const useCartStore = create<CartState>()(
         }),
 
       clearCart: () => set({ items: [] }),
+
+      setItems: (items) => set({ items }),
+
+      openCart: () => set({ isOpen: true }),
+      closeCart: () => set({ isOpen: false }),
     }),
-    { name: "berare-cart" }
+    {
+      name: "berare-cart",
+      // isOpen is transient UI state, not something to restore across
+      // reloads — a fresh page load should never come up with the drawer
+      // already open.
+      partialize: (state) => ({ items: state.items }),
+    }
   )
 )
 

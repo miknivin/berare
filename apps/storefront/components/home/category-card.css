@@ -1,0 +1,97 @@
+/* 3D tilt category card — inverted from the usual hover pattern: tilted +
+   layered depth at rest, flattens with a soft background blur on hover.
+   `perspective` must live on an ancestor of the rotated element, hence the
+   separate wrapper. `transform-style: preserve-3d` must carry through
+   every level between the rotated card and the translateZ'd content for
+   the depth to actually read against the card's own tilt. */
+
+.category-card-parent {
+  perspective: 700px;
+}
+
+.category-card {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  transform-style: preserve-3d;
+  transform: rotate3d(0.5, 1, 0, 10deg);
+  transition: transform 0.5s ease-in-out;
+  box-shadow: 0 20px 30px -10px rgba(91, 63, 163, 0.3);
+  background-color: var(--color-muted);
+}
+
+.category-card:hover {
+  transform: rotate3d(0, 0, 0, 0deg);
+}
+
+.category-card__image {
+  transition: filter 0.5s ease-in-out;
+}
+
+.category-card:hover .category-card__image {
+  filter: blur(3px);
+}
+
+.category-card__image-fallback {
+  position: absolute;
+  inset: 0;
+  background-color: var(--color-muted);
+}
+
+.category-card__content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 1.25rem;
+  background: linear-gradient(to top, rgba(36, 28, 51, 0.75), rgba(36, 28, 51, 0.15) 55%, transparent);
+  transform-style: preserve-3d;
+}
+
+.category-card__title {
+  color: white;
+  font-family: var(--font-heading), sans-serif;
+  font-weight: 700;
+  font-size: 1.125rem;
+  transform: translate3d(0, 0, 80px);
+  transition: transform 0.5s ease-in-out;
+}
+
+.category-card:hover .category-card__title {
+  transform: translate3d(0, 0, 100px);
+}
+
+.category-card__cta {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-primary);
+  background: white;
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  transform: translate3d(0, 0, 45px);
+  transition: transform 0.5s ease-in-out;
+}
+
+.category-card:hover .category-card__cta {
+  transform: translate3d(0, 0, 100px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .category-card {
+    transform: none !important;
+    transition: none !important;
+  }
+  .category-card__image,
+  .category-card__title,
+  .category-card__cta {
+    transition: none !important;
+  }
+}

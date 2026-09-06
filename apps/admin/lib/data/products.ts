@@ -9,6 +9,7 @@ export type ProductListItem = {
   name: string
   slug: string
   price: number
+  compare_at_price: number | null
   status: ProductStatus
   categories: { id: string; name: string } | null
 }
@@ -26,6 +27,7 @@ export type ProductDetail = {
   slug: string
   description: string | null
   price: number
+  compare_at_price: number | null
   status: ProductStatus
   category_id: string | null
   images: ProductImage[]
@@ -48,7 +50,7 @@ export async function getProducts(page = 1, pageSize = DEFAULT_PAGE_SIZE): Promi
 
   const { data, error, count } = await supabase
     .from("products")
-    .select("id, name, slug, price, status, categories(id, name)", { count: "exact" })
+    .select("id, name, slug, price, compare_at_price, status, categories(id, name)", { count: "exact" })
     .order("created_at", { ascending: false })
     .range(from, to)
 
@@ -74,7 +76,7 @@ export async function getProductById(id: string): Promise<ProductDetail | null> 
   const { data, error } = await supabase
     .from("products")
     .select(
-      "id, name, slug, description, price, status, category_id, product_images(id, storage_path, position)"
+      "id, name, slug, description, price, compare_at_price, status, category_id, product_images(id, storage_path, position)"
     )
     .eq("id", id)
     .maybeSingle()

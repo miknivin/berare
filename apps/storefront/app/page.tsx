@@ -1,13 +1,15 @@
 import Link from "next/link"
-import Image from "next/image"
+import { Suspense } from "react"
 import { Truck, RotateCcw, ShieldCheck } from "lucide-react"
 import { getCategories } from "@/lib/data/categories"
 import { getProducts } from "@/lib/data/products"
 import { ProductFilters } from "@/lib/data/product-filters"
 import { getHeroBanners } from "@/lib/data/hero-banners"
-import { getS3Url } from "@/lib/image"
 import { ProductCarousel } from "@/components/product/product-carousel"
 import { HeroSwiper } from "@/components/home/hero-swiper"
+import { CategoryCard } from "@/components/home/category-card"
+import { CategoryCarousel } from "@/components/home/category-carousel"
+import { TestimonialsSection } from "@/components/testimonials/testimonials-section"
 
 export default async function Home() {
   const [categories, { products }, banners] = await Promise.all([
@@ -15,7 +17,9 @@ export default async function Home() {
     getProducts(new ProductFilters({ sort: "newest" })),
     getHeroBanners(),
   ])
-  const topLevelCategories = categories.filter((c) => !c.parent_id)
+  // "Soap" excluded from the homepage for now, per a temporary product
+  // call — the category itself is left untouched in the database.
+  const topLevelCategories = categories.filter((c) => !c.parent_id && c.name.toLowerCase() !== "soap")
 
   return (
     <div className="flex-1">
@@ -61,35 +65,12 @@ export default async function Home() {
       {topLevelCategories.length > 0 && (
         <section className="mx-auto max-w-7xl px-4 md:px-6 py-14">
           <h2 className="font-heading font-bold text-2xl mb-7">Shop by Category</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
+
+          <CategoryCarousel categories={topLevelCategories} />
+
+          <div className="hidden md:grid md:grid-cols-4 gap-5">
             {topLevelCategories.map((category) => (
-              <Link
-                key={category.id}
-                href={`/categories/${category.slug}`}
-                className="group relative flex items-center justify-center aspect-4/3 rounded-xl overflow-hidden bg-muted hover:bg-secondary/40 transition-colors shadow-sm"
-              >
-                {category.image_path && (
-                  <>
-                    <Image
-                      src={getS3Url(category.image_path)}
-                      alt=""
-                      fill
-                      sizes="(min-width: 768px) 25vw, 50vw"
-                      className="object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-black/35 group-hover:bg-black/45 transition-colors" />
-                  </>
-                )}
-                <span
-                  className={`relative font-heading font-semibold text-lg transition-colors ${
-                    category.image_path
-                      ? "text-white"
-                      : "group-hover:text-primary"
-                  }`}
-                >
-                  {category.name}
-                </span>
-              </Link>
+              <CategoryCard key={category.id} category={category} />
             ))}
           </div>
         </section>
@@ -103,6 +84,12 @@ export default async function Home() {
           </Link>
         </div>
         <ProductCarousel products={products} />
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 md:px-6 pb-24">
+        <Suspense fallback={null}>
+          <TestimonialsSection />
+        </Suspense>
       </section>
     </div>
   )

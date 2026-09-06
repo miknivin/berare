@@ -5,6 +5,8 @@ import { QueryProvider } from "@/components/providers/query-provider";
 import { AnnouncementBar } from "@/components/layout/announcement-bar";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
+import { CartDrawer } from "@/components/cart/cart-drawer";
+import { CartValidator } from "@/components/cart/cart-validator";
 import "./globals.css";
 
 const inter = Inter({
@@ -33,12 +35,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <QueryProvider>
+          <CartValidator />
           <AnnouncementBar />
           <Navbar />
           <main className="flex-1 flex flex-col">{children}</main>
           <Suspense fallback={null}>
             <Footer />
           </Suspense>
+          <CartDrawer />
         </QueryProvider>
       </body>
     </html>

@@ -1,12 +1,16 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
+import { Suspense } from "react"
 import type { Metadata } from "next"
 import { ShieldCheck, Truck } from "lucide-react"
 import { getProductBySlug, getRelatedProducts } from "@/lib/data/products"
 import { ProductGallery } from "@/components/product/product-gallery"
 import { ProductGrid } from "@/components/product/product-grid"
 import { AddToCartButton } from "@/components/product/add-to-cart-button"
-import { formatPrice } from "@/lib/format"
+import { PriceDisplay } from "@/components/product/price-display"
+import { WishlistButton } from "@/components/product/wishlist-button"
+import { ShareButton } from "@/components/product/share-button"
+import { ReviewsSection } from "@/components/reviews/reviews-section"
 
 export async function generateMetadata({
   params,
@@ -28,6 +32,9 @@ export default async function ProductPage({
   if (!product) notFound()
 
   const related = await getRelatedProducts(product.category_id, product.id)
+
+  const primaryImage = [...product.product_images].sort((a, b) => a.position - b.position)[0]
+  const productUrl = `${process.env.NEXT_PUBLIC_STOREFRONT_URL ?? ""}/products/${product.slug}`
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -71,8 +78,26 @@ export default async function ProductPage({
         />
 
         <div>
-          <h1 className="font-heading text-2xl md:text-3xl">{product.name}</h1>
-          <p className="mt-2 text-2xl font-medium">{formatPrice(product.price)}</p>
+          <div className="flex items-start justify-between gap-4">
+            <h1 className="font-heading text-2xl md:text-3xl">{product.name}</h1>
+            <div className="flex items-center gap-2 shrink-0">
+              <WishlistButton
+                size="lg"
+                item={{
+                  productId: product.id,
+                  name: product.name,
+                  slug: product.slug,
+                  price: product.price,
+                  compareAtPrice: product.compare_at_price,
+                  image: primaryImage?.storage_path ?? null,
+                }}
+              />
+              <ShareButton title={product.name} url={productUrl} />
+            </div>
+          </div>
+          <div className="mt-2">
+            <PriceDisplay price={product.price} compareAtPrice={product.compare_at_price} size="lg" />
+          </div>
 
           {product.description && (
             <p className="mt-6 text-sm text-muted-foreground leading-relaxed">
@@ -96,6 +121,12 @@ export default async function ProductPage({
           </div>
         </div>
       </div>
+
+      <section className="mt-16 md:mt-24">
+        <Suspense fallback={<div className="h-40" />}>
+          <ReviewsSection productId={product.id} productSlug={product.slug} />
+        </Suspense>
+      </section>
 
       {related.length > 0 && (
         <section className="mt-16 md:mt-24">

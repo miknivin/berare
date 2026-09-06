@@ -9,13 +9,19 @@ import { createPresignedUploadUrl, deleteS3Object } from "@/lib/s3"
 
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"]
 
-const productInputSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  description: z.string().optional(),
-  price: z.number().positive("Price must be greater than 0"),
-  status: z.enum(["draft", "active", "disabled"]),
-  categoryId: z.string().uuid().nullable(),
-})
+const productInputSchema = z
+  .object({
+    name: z.string().min(1, "Name is required"),
+    description: z.string().optional(),
+    price: z.number().positive("Price must be greater than 0"),
+    compareAtPrice: z.number().positive().nullable(),
+    status: z.enum(["draft", "active", "disabled"]),
+    categoryId: z.string().uuid().nullable(),
+  })
+  .refine((data) => data.compareAtPrice == null || data.compareAtPrice > data.price, {
+    message: "Original price must be greater than the current price",
+    path: ["compareAtPrice"],
+  })
 
 export type ProductActionResult =
   | { success: true; id: string }
@@ -37,6 +43,7 @@ export async function createProduct(input: z.infer<typeof productInputSchema>): 
       slug: slugify(parsed.data.name),
       description: parsed.data.description || null,
       price: parsed.data.price,
+      compare_at_price: parsed.data.compareAtPrice,
       status: parsed.data.status,
       category_id: parsed.data.categoryId,
     })
@@ -72,6 +79,7 @@ export async function updateProduct(
       name: parsed.data.name,
       description: parsed.data.description || null,
       price: parsed.data.price,
+      compare_at_price: parsed.data.compareAtPrice,
       status: parsed.data.status,
       category_id: parsed.data.categoryId,
     })

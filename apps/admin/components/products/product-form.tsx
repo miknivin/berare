@@ -28,6 +28,9 @@ export function ProductForm({
   const [name, setName] = useState(product?.name ?? "")
   const [description, setDescription] = useState(product?.description ?? "")
   const [price, setPrice] = useState(product ? String(product.price) : "")
+  const [compareAtPrice, setCompareAtPrice] = useState(
+    product?.compare_at_price != null ? String(product.compare_at_price) : ""
+  )
   const [status, setStatus] = useState<"draft" | "active" | "disabled">(product?.status ?? "draft")
   const [categoryId, setCategoryId] = useState<string | null>(product?.category_id ?? null)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -42,6 +45,7 @@ export function ProductForm({
       name,
       description: description || undefined,
       price: Number(price),
+      compareAtPrice: compareAtPrice ? Number(compareAtPrice) : null,
       status,
       categoryId,
     }
@@ -95,26 +99,41 @@ export function ProductForm({
         </div>
 
         <div className="space-y-1.5">
-          <Label>Status</Label>
-          <Select
-            value={status}
-            onValueChange={(v) => v && setStatus(v as typeof status)}
-            items={[
-              { value: "draft", label: "Draft" },
-              { value: "active", label: "Active" },
-              { value: "disabled", label: "Disabled" },
-            ]}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="draft">Draft</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="disabled">Disabled</SelectItem>
-            </SelectContent>
-          </Select>
+          <Label htmlFor="compareAtPrice">
+            Original price <span className="text-muted-foreground font-normal">(optional)</span>
+          </Label>
+          <Input
+            id="compareAtPrice"
+            type="number"
+            min="0"
+            step="1"
+            value={compareAtPrice}
+            onChange={(e) => setCompareAtPrice(e.target.value)}
+            placeholder="Leave blank for no discount"
+          />
         </div>
+      </div>
+
+      <div className="space-y-1.5">
+        <Label>Status</Label>
+        <Select
+          value={status}
+          onValueChange={(v) => v && setStatus(v as typeof status)}
+          items={[
+            { value: "draft", label: "Draft" },
+            { value: "active", label: "Active" },
+            { value: "disabled", label: "Disabled" },
+          ]}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="draft">Draft</SelectItem>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="disabled">Disabled</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="space-y-1.5">

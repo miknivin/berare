@@ -8,6 +8,7 @@ import { MobileMenu } from "./mobile-menu"
 import { SearchBar } from "./search-bar"
 import { UserMenuButton } from "./user-menu-button"
 import { CartIndicator } from "@/components/cart/cart-indicator"
+import { WishlistIndicator } from "@/components/product/wishlist-indicator"
 
 // The header shell itself is fully synchronous — it never blocks on
 // Supabase or the categories query. Each data-dependent piece resolves
@@ -39,6 +40,7 @@ export function Navbar() {
             <Suspense fallback={<UserMenuFallback />}>
               <NavUserMenu />
             </Suspense>
+            <WishlistIndicator />
             <CartIndicator />
           </div>
         </div>
