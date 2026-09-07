@@ -16,8 +16,21 @@ const AUTOPLAY_CONFIG = { delay: AUTOPLAY_MS, disableOnInteraction: false, pause
 // needs no per-slide logic or animation since it never changes.
 export function HeroSwiper({ banners }: { banners: HeroBanner[] }) {
   return (
-    <div className="bg-muted">
-      <div className="mx-auto max-w-7xl grid md:grid-cols-2 gap-8 md:gap-16 items-center px-6 md:px-12 py-16 md:py-28 min-h-130 md:min-h-160">
+    <div className="bg-muted relative overflow-hidden">
+      {/* Bubble illustration, purpose-made for this: clusters at the left
+          and right edges, plain/transparent through the middle where the
+          text and product mockup actually sit. Fills the whole section,
+          sits behind everything (z-0), purely decorative. */}
+      <Image
+        src="/banners/banner-bg.webp"
+        alt=""
+        fill
+        priority
+        className="object-cover pointer-events-none select-none z-0"
+        aria-hidden="true"
+      />
+
+      <div className="relative z-10 mx-auto max-w-7xl grid md:grid-cols-2 gap-8 md:gap-16 items-center px-6 md:px-12 py-16 md:py-28 min-h-130 md:min-h-160">
         <div className="order-2 md:order-1 flex flex-col items-center md:items-start text-center md:text-left gap-4 md:gap-5">
           <h1 className="font-heading font-bold text-3xl md:text-5xl leading-tight">
             Science-Backed Beauty, For Everyone
