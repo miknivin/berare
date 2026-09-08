@@ -25,7 +25,7 @@ export function Navbar() {
               <NavMobileMenu />
             </Suspense>
             <Link href="/" className="flex items-center">
-              <Image src="/logo.png" alt="Berare" width={300} height={166} priority className="h-12 w-auto" />
+              <Image src="/logo.png" alt="Berare" width={300} height={166} priority className="h-14 w-auto" />
             </Link>
           </div>
 
