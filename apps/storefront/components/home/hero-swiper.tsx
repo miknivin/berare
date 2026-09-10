@@ -33,7 +33,7 @@ export function HeroSwiper({ banners }: { banners: HeroBanner[] }) {
       <div className="relative z-10 mx-auto max-w-7xl grid md:grid-cols-2 gap-8 md:gap-16 items-center px-6 md:px-12 py-16 md:py-28 min-h-130 md:min-h-160">
         <div className="order-2 md:order-1 flex flex-col items-center md:items-start text-center md:text-left gap-4 md:gap-5">
           <h1 className="font-heading font-bold text-3xl md:text-5xl leading-tight">
-            Science-Backed Beauty, For Everyone
+            Science-Backed Beauty, <span className="text-primary">For Everyone</span>
           </h1>
           <p className="text-muted-foreground text-base md:text-lg max-w-md">
             Explore our full range of skincare and beauty essentials, formulated for real results and delivered
