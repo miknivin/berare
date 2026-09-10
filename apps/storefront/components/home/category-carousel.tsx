@@ -17,11 +17,19 @@ export function CategoryCarousel({ categories }: { categories: Category[] }) {
   const [canScrollLeft, setCanScrollLeft] = useState(false)
   const [canScrollRight, setCanScrollRight] = useState(false)
 
+  // Element-position based, not scrollWidth-based — under snap-mandatory
+  // the browser only ever settles on a card's snap-start point, which
+  // sits short of scrollWidth - clientWidth by roughly that card's own
+  // trailing width, so a scrollWidth comparison never reaches "false"
+  // and the end scrim never clears (see product-carousel.tsx).
   function updateScrollState() {
     const el = scrollerRef.current
-    if (!el) return
-    setCanScrollLeft(el.scrollLeft > EDGE_THRESHOLD)
-    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - EDGE_THRESHOLD)
+    if (!el || el.children.length === 0) return
+    const containerRect = el.getBoundingClientRect()
+    const firstRect = el.children[0].getBoundingClientRect()
+    const lastRect = el.children[el.children.length - 1].getBoundingClientRect()
+    setCanScrollLeft(firstRect.left < containerRect.left - EDGE_THRESHOLD)
+    setCanScrollRight(lastRect.right > containerRect.right + EDGE_THRESHOLD)
   }
 
   useEffect(() => {

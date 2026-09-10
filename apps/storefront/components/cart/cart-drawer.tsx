@@ -79,11 +79,11 @@ export function CartDrawer() {
                 <span className="font-medium">{formatPrice(subtotal)}</span>
               </div>
               <Link
-                href="/cart"
+                href="/checkout"
                 onClick={closeCart}
                 className="w-full min-h-11 flex items-center justify-center rounded-full bg-primary text-primary-foreground px-6 py-3 text-sm font-medium hover:bg-primary-hover transition-colors"
               >
-                View Cart
+                Proceed to Checkout
               </Link>
             </div>
           </>

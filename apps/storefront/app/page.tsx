@@ -2,20 +2,28 @@ import Link from "next/link"
 import { Suspense } from "react"
 import { Truck, RotateCcw, ShieldCheck } from "lucide-react"
 import { getCategories } from "@/lib/data/categories"
-import { getProducts } from "@/lib/data/products"
+import { getBestSellers, getProducts } from "@/lib/data/products"
 import { ProductFilters } from "@/lib/data/product-filters"
 import { getHeroBanners } from "@/lib/data/hero-banners"
 import { ProductCarousel } from "@/components/product/product-carousel"
 import { HeroSwiper } from "@/components/home/hero-swiper"
 import { CategoryCard } from "@/components/home/category-card"
 import { CategoryCarousel } from "@/components/home/category-carousel"
+import { PromoBannerSwiper } from "@/components/home/promo-banner-swiper"
+import { BrandMarquee } from "@/components/home/brand-marquee"
+import { AboutTeaser } from "@/components/home/about-teaser"
 import { TestimonialsSection } from "@/components/testimonials/testimonials-section"
+import { Reveal } from "@/components/motion/reveal"
+
+const SECOND_STAGE_BANNERS = ["/banners/second-stage/2.webp", "/banners/second-stage/3.webp"]
+const THIRD_STAGE_BANNERS = ["/banners/third-stage/1.webp", "/banners/third-stage/2.webp"]
 
 export default async function Home() {
-  const [categories, { products }, banners] = await Promise.all([
+  const [categories, { products }, banners, bestSellers] = await Promise.all([
     getCategories(),
     getProducts(new ProductFilters({ sort: "newest" })),
     getHeroBanners(),
+    getBestSellers(),
   ])
   // "Soap" excluded from the homepage for now, per a temporary product
   // call — the category itself is left untouched in the database.
@@ -62,35 +70,73 @@ export default async function Home() {
         </div>
       </section>
 
+      <section className="mx-auto max-w-7xl px-4 md:px-6 pt-4">
+        <PromoBannerSwiper images={SECOND_STAGE_BANNERS} href="/products" linkLabel="Shop all products" />
+      </section>
+
       {topLevelCategories.length > 0 && (
-        <section className="mx-auto max-w-7xl px-4 md:px-6 py-14">
-          <h2 className="font-heading font-bold text-2xl mb-7">Shop by Category</h2>
+        <Reveal>
+          <section className="mx-auto max-w-7xl px-4 md:px-6 py-14">
+            <h2 className="font-heading font-bold text-2xl mb-7">Shop by Category</h2>
 
-          <CategoryCarousel categories={topLevelCategories} />
+            <CategoryCarousel categories={topLevelCategories} />
 
-          <div className="hidden md:grid md:grid-cols-4 gap-5">
-            {topLevelCategories.map((category) => (
-              <CategoryCard key={category.id} category={category} />
-            ))}
-          </div>
-        </section>
+            <div className="hidden md:grid md:grid-cols-4 gap-5">
+              {topLevelCategories.map((category) => (
+                <CategoryCard key={category.id} category={category} />
+              ))}
+            </div>
+          </section>
+        </Reveal>
       )}
 
-      <section className="mx-auto max-w-7xl px-4 md:px-6 py-14 pb-24">
-        <div className="flex items-center justify-between mb-7">
-          <h2 className="font-heading font-bold text-2xl">New Arrivals</h2>
-          <Link href="/products" className="text-sm font-medium hover:text-primary transition-colors">
-            View All
-          </Link>
-        </div>
-        <ProductCarousel products={products} />
-      </section>
+      {bestSellers.length > 0 && (
+        <Reveal>
+          <section className="mx-auto max-w-7xl px-4 md:px-6 py-14">
+            <div className="flex items-center justify-between mb-7">
+              <h2 className="font-heading font-bold text-2xl">Best Sellers</h2>
+              <Link href="/products" className="text-sm font-medium hover:text-primary transition-colors">
+                View All
+              </Link>
+            </div>
+            <ProductCarousel products={bestSellers} />
+          </section>
+        </Reveal>
+      )}
 
-      <section className="mx-auto max-w-7xl px-4 md:px-6 pb-24">
-        <Suspense fallback={null}>
-          <TestimonialsSection />
-        </Suspense>
-      </section>
+      <BrandMarquee />
+
+      <Reveal>
+        <section className="mx-auto max-w-7xl px-4 md:px-6 py-14">
+          <div className="flex items-center justify-between mb-7">
+            <h2 className="font-heading font-bold text-2xl">New Arrivals</h2>
+            <Link href="/products" className="text-sm font-medium hover:text-primary transition-colors">
+              View All
+            </Link>
+          </div>
+          <ProductCarousel products={products} />
+        </section>
+      </Reveal>
+
+      <Reveal>
+        <section className="mx-auto max-w-7xl px-4 md:px-6 pb-14">
+          <PromoBannerSwiper images={THIRD_STAGE_BANNERS} />
+        </section>
+      </Reveal>
+
+      <Reveal>
+        <section className="mx-auto max-w-7xl px-4 md:px-6 pb-14">
+          <AboutTeaser />
+        </section>
+      </Reveal>
+
+      <Reveal>
+        <section className="mx-auto max-w-7xl px-4 md:px-6 pb-24">
+          <Suspense fallback={null}>
+            <TestimonialsSection />
+          </Suspense>
+        </section>
+      </Reveal>
     </div>
   )
 }

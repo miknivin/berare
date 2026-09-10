@@ -23,3 +23,25 @@
     animation: none !important;
   }
 }
+
+/* Slow, subtle drift for the decorative bubble background — much smaller
+   amplitude and slower than the product mockup's bob, since it's a big
+   full-bleed cover image, not a small focal element. */
+@keyframes hero-bg-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+
+.hero-bg-float {
+  animation: hero-bg-float 8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-bg-float {
+    animation: none !important;
+  }
+}

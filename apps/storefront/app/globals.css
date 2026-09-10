@@ -44,6 +44,8 @@
 
   --font-sans: var(--font-inter);
   --font-heading: var(--font-manrope);
+  --font-serif: var(--font-playfair);
+  --font-cursive: var(--font-alex-brush);
 }
 
 body {

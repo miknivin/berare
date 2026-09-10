@@ -1,0 +1,25 @@
+/* Same seamless-loop technique as the announcement bar: two identical
+   copies side by side, translateX 0 -> -50% loops without a visible seam,
+   as long as one copy's rendered width already exceeds the viewport. */
+@keyframes brand-marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.brand-marquee-track {
+  animation: brand-marquee-scroll 50s linear infinite;
+}
+
+.brand-marquee-track:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-marquee-track {
+    animation: none;
+  }
+}

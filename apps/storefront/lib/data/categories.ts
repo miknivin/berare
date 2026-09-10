@@ -29,3 +29,25 @@ export function getDescendantCategories(categories: Category[], parentId: string
   const children = categories.filter((c) => c.parent_id === parentId)
   return children.flatMap((child) => [child, ...getDescendantCategories(categories, child.id)])
 }
+
+// Distinct category_ids carrying at least one active product — cheap to
+// fetch once for the whole nav so it can decide which categories get a
+// dropdown/chevron without loading every product up front.
+export const getActiveProductCategoryIds = cache(async (): Promise<Set<string>> => {
+  const supabase = await createServerSupabaseClient()
+  const { data, error } = await supabase.from("products").select("category_id").eq("status", "active")
+
+  if (error) throw error
+  return new Set((data ?? []).map((p) => p.category_id).filter((id): id is string => id !== null))
+})
+
+// Same rollup rule as the category page: a category "has products" if it
+// or any of its descendants (subcategories) does.
+export function hasProductsUnderCategory(
+  categories: Category[],
+  activeProductCategoryIds: Set<string>,
+  categoryId: string
+): boolean {
+  if (activeProductCategoryIds.has(categoryId)) return true
+  return getDescendantCategories(categories, categoryId).some((c) => activeProductCategoryIds.has(c.id))
+}

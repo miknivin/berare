@@ -6,6 +6,8 @@
    people hover a product photo to look closer, not have it blur. */
 
 .product-card-parent {
+  padding-left: 5px;
+  padding-right: 5px;
   position: relative;
   perspective: 900px;
 }

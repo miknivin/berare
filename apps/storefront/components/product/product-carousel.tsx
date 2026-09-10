@@ -14,11 +14,21 @@ export function ProductCarousel({ products }: { products: ProductListItem[] }) {
   const [canScrollLeft, setCanScrollLeft] = useState(false)
   const [canScrollRight, setCanScrollRight] = useState(false)
 
+  // Comparing scrollLeft against scrollWidth breaks under snap-mandatory:
+  // the browser only ever settles on a card's snap-start point, and the
+  // last card's snap point sits short of scrollWidth - clientWidth (by
+  // roughly that card's own trailing width) — so that comparison never
+  // reaches "false" and the end scrim lingers forever, permanently
+  // shading part of the last card. Checking the actual card elements'
+  // positions against the viewport is immune to that.
   function updateScrollState() {
     const el = scrollerRef.current
-    if (!el) return
-    setCanScrollLeft(el.scrollLeft > EDGE_THRESHOLD)
-    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - EDGE_THRESHOLD)
+    if (!el || el.children.length === 0) return
+    const containerRect = el.getBoundingClientRect()
+    const firstRect = el.children[0].getBoundingClientRect()
+    const lastRect = el.children[el.children.length - 1].getBoundingClientRect()
+    setCanScrollLeft(firstRect.left < containerRect.left - EDGE_THRESHOLD)
+    setCanScrollRight(lastRect.right > containerRect.right + EDGE_THRESHOLD)
   }
 
   useEffect(() => {
@@ -40,7 +50,7 @@ export function ProductCarousel({ products }: { products: ProductListItem[] }) {
       <div
         ref={scrollerRef}
         onScroll={updateScrollState}
-        className="flex gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex gap-4 md:gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {products.map((product) => (
           <div key={product.id} className="shrink-0 snap-start w-[45%] sm:w-[30%] lg:w-[23%]">
@@ -49,6 +59,10 @@ export function ProductCarousel({ products }: { products: ProductListItem[] }) {
         ))}
       </div>
 
+      {/* canScrollLeft/Right is element-position based (see
+          updateScrollState) so it actually clears once the peeking card
+          is the true last/first one, instead of lingering forever the
+          way a scrollWidth check would under snap-mandatory. */}
       {canScrollLeft && (
         <div
           aria-hidden="true"
@@ -62,22 +76,26 @@ export function ProductCarousel({ products }: { products: ProductListItem[] }) {
         />
       )}
 
-      <button
-        type="button"
-        onClick={() => scrollBy(-1)}
-        aria-label="Scroll left"
-        className="hidden md:flex absolute left-0 top-1/3 -translate-y-1/2 -translate-x-4 w-10 h-10 items-center justify-center rounded-full bg-background border border-border shadow-sm hover:bg-muted"
-      >
-        <ChevronLeft className="w-4 h-4" aria-hidden="true" />
-      </button>
-      <button
-        type="button"
-        onClick={() => scrollBy(1)}
-        aria-label="Scroll right"
-        className="hidden md:flex absolute right-0 top-1/3 -translate-y-1/2 translate-x-4 w-10 h-10 items-center justify-center rounded-full bg-background border border-border shadow-sm hover:bg-muted"
-      >
-        <ChevronRight className="w-4 h-4" aria-hidden="true" />
-      </button>
+      {canScrollLeft && (
+        <button
+          type="button"
+          onClick={() => scrollBy(-1)}
+          aria-label="Scroll left"
+          className="hidden md:flex absolute left-0 top-1/3 -translate-y-1/2 -translate-x-4 w-10 h-10 items-center justify-center rounded-full bg-background border border-border shadow-sm hover:bg-muted"
+        >
+          <ChevronLeft className="w-4 h-4" aria-hidden="true" />
+        </button>
+      )}
+      {canScrollRight && (
+        <button
+          type="button"
+          onClick={() => scrollBy(1)}
+          aria-label="Scroll right"
+          className="hidden md:flex absolute right-0 top-1/3 -translate-y-1/2 translate-x-4 w-10 h-10 items-center justify-center rounded-full bg-background border border-border shadow-sm hover:bg-muted"
+        >
+          <ChevronRight className="w-4 h-4" aria-hidden="true" />
+        </button>
+      )}
     </div>
   )
 }

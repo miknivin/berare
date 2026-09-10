@@ -1,0 +1,29 @@
+/* Two identical copies of the message list sit side by side; animating
+   translateX from 0 to -50% moves exactly one copy's width, so the moment
+   the first copy scrolls out, the second is already in its place — a
+   seamless loop with no visible jump or gap. */
+@keyframes announcement-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.announcement-marquee {
+  /* Duration scales with REPEATS_PER_COPY in announcement-bar.tsx so the
+     scroll speed (px/sec) stays constant regardless of how many times the
+     item list is repeated to fill the track. */
+  animation: announcement-marquee 110s linear infinite;
+}
+
+.announcement-marquee:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .announcement-marquee {
+    animation: none;
+  }
+}

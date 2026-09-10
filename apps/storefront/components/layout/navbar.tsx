@@ -2,13 +2,14 @@ import { Suspense } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Menu, User } from "lucide-react"
-import { getCategories } from "@/lib/data/categories"
+import { getActiveProductCategoryIds, getCategories, hasProductsUnderCategory } from "@/lib/data/categories"
 import { getCurrentUser } from "@/lib/data/auth"
 import { MobileMenu } from "./mobile-menu"
 import { SearchBar } from "./search-bar"
 import { UserMenuButton } from "./user-menu-button"
 import { CartIndicator } from "@/components/cart/cart-indicator"
 import { WishlistIndicator } from "@/components/product/wishlist-indicator"
+import { CategoryDropdown } from "./category-dropdown"
 
 // The header shell itself is fully synchronous — it never blocks on
 // Supabase or the categories query. Each data-dependent piece resolves
@@ -63,7 +64,10 @@ function MobileMenuFallback() {
 }
 
 async function DesktopCategoryNav() {
-  const categories = await getCategories()
+  const [categories, activeProductCategoryIds] = await Promise.all([
+    getCategories(),
+    getActiveProductCategoryIds(),
+  ])
   const topLevelCategories = categories.filter((c) => !c.parent_id)
 
   return (
@@ -72,13 +76,11 @@ async function DesktopCategoryNav() {
         All Products
       </Link>
       {topLevelCategories.map((category) => (
-        <Link
+        <CategoryDropdown
           key={category.id}
-          href={`/categories/${category.slug}`}
-          className="text-sm font-medium hover:text-primary transition-colors"
-        >
-          {category.name}
-        </Link>
+          category={category}
+          hasProducts={hasProductsUnderCategory(categories, activeProductCategoryIds, category.id)}
+        />
       ))}
     </nav>
   )

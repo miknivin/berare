@@ -26,7 +26,7 @@ export function HeroSwiper({ banners }: { banners: HeroBanner[] }) {
         alt=""
         fill
         priority
-        className="object-cover pointer-events-none select-none z-0"
+        className="object-cover pointer-events-none select-none z-0 hero-bg-float"
         aria-hidden="true"
       />
 

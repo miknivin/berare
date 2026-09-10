@@ -729,6 +729,13 @@ export type Database = {
         Args: { p_affiliate_id: string }
         Returns: number
       }
+      get_best_seller_product_ids: {
+        Args: { p_limit: number; p_threshold: number }
+        Returns: {
+          order_count: number
+          product_id: string
+        }[]
+      }
       record_affiliate_attribution: {
         Args: { p_order_id: string }
         Returns: undefined
