@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { LayoutDashboard, Package, ShoppingCart, Image as ImageIcon, Tags, Users, Star, MessageSquareQuote } from "lucide-react"
+import { useMobileSidebar } from "./mobile-sidebar-context"
 
 const NAV_ITEMS = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -17,6 +18,7 @@ const NAV_ITEMS = [
 
 export function SidebarNav() {
   const pathname = usePathname()
+  const { close } = useMobileSidebar()
 
   return (
     <nav className="flex-1 p-3 space-y-1">
@@ -29,6 +31,7 @@ export function SidebarNav() {
           <Link
             key={item.href}
             href={item.href}
+            onClick={close}
             aria-current={isActive ? "page" : undefined}
             className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
               isActive

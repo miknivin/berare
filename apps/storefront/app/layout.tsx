@@ -50,7 +50,21 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <CartValidator />
           <AnnouncementBar />
           <Navbar />
-          <main className="flex-1 flex flex-col">{children}</main>
+          {/* The inner div matters: per the flexbox spec, a flex item
+              with auto margins (mx-auto, which every page's root uses to
+              center its max-w-7xl container) doesn't stretch to the
+              parent's width the way align-items: stretch normally would —
+              it sizes itself to its own content's preferred width first
+              and centers the leftover space instead. Since every page is
+              rendered directly as this flex column's child, that silently
+              blew every page's content out to well past 1280px wide,
+              forcing horizontal scroll on any viewport narrower than
+              that. This wrapper is a plain (non-flex) block, so it
+              stretches to 100% correctly, and each page's own mx-auto
+              div then centers itself the normal, non-flex way inside it. */}
+          <main className="flex-1 flex flex-col min-w-0">
+            <div className="min-w-0">{children}</div>
+          </main>
           <Suspense fallback={null}>
             <Footer />
           </Suspense>

@@ -3,12 +3,13 @@ import Image from "next/image"
 import { LogOut } from "lucide-react"
 import { requireStaff } from "@/lib/auth"
 import { SidebarNav } from "./sidebar-nav"
+import { SidebarFrame } from "./sidebar-frame"
 
 export async function AdminSidebar() {
   const { user, staff } = await requireStaff()
 
   return (
-    <aside className="w-56 shrink-0 h-svh fixed inset-y-0 left-0 border-r border-border bg-muted/30 flex flex-col overflow-y-auto">
+    <SidebarFrame>
       <Link href="/" className="p-5 border-b border-border flex items-center">
         <Image
           src="/logo.png"
@@ -36,6 +37,6 @@ export async function AdminSidebar() {
           </button>
         </form>
       </div>
-    </aside>
+    </SidebarFrame>
   )
 }
