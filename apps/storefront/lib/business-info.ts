@@ -11,8 +11,8 @@ export const BUSINESS_INFO = {
     pincode: "574239",
     country: "India",
   },
-  phone: "+91 81236 05873",
-  email: "berarecosmetics@gmail.com",
+  phone: "+91 76195 00172",
+  email: "care@berarecosmetics.in",
 } as const
 
 export function formatAddress() {
