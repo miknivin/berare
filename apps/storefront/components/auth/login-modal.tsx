@@ -1,5 +1,6 @@
 "use client"
 
+import { createPortal } from "react-dom"
 import { X } from "lucide-react"
 import { LoginForm } from "./login-form"
 
@@ -18,7 +19,13 @@ export function LoginModal({
 }) {
   if (!open) return null
 
-  return (
+  // Portaled to body — UserMenuButton (one of this modal's callers) lives
+  // inside the navbar's header, which has backdrop-blur. A backdrop-filter
+  // ancestor makes browsers treat it as the containing block for `fixed`
+  // descendants instead of the viewport, so without the portal this modal
+  // renders trapped inside the header's own small box instead of centered
+  // in the full viewport (same root cause as the mobile menu drawer bug).
+  return createPortal(
     <div className="fixed inset-0 z-50" role="dialog" aria-modal="true" aria-label="Sign in">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} aria-hidden="true" />
 
@@ -35,6 +42,7 @@ export function LoginModal({
           <LoginForm onSuccess={onSuccess} heading={heading} subtitle={subtitle} />
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
