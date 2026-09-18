@@ -3,6 +3,7 @@
 import { createPortal } from "react-dom"
 import { X } from "lucide-react"
 import { LoginForm } from "./login-form"
+import { useIsMounted } from "@/lib/hooks/use-is-mounted"
 
 export function LoginModal({
   open,
@@ -17,7 +18,13 @@ export function LoginModal({
   heading?: string
   subtitle?: string
 }) {
-  if (!open) return null
+  // document.body doesn't exist during SSR, and Client Components still
+  // render once on the server — callers like CheckoutLoginGate default
+  // `open` to true, so without this mount guard createPortal would run
+  // during that server pass and crash with "document is not defined".
+  const mounted = useIsMounted()
+
+  if (!open || !mounted) return null
 
   // Portaled to body — UserMenuButton (one of this modal's callers) lives
   // inside the navbar's header, which has backdrop-blur. A backdrop-filter

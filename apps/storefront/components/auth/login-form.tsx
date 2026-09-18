@@ -8,6 +8,11 @@ import { cn } from "@/lib/utils"
 
 type Step = "request" | "verify"
 
+// Off until the Google consent screen's branding/domain question is
+// settled (see conversation history) — the button and its handler stay in
+// place, just not rendered, so flipping this back on is a one-line change.
+const GOOGLE_SIGN_IN_ENABLED = false
+
 export function LoginForm({
   onSuccess,
   heading = "Sign in",
@@ -123,21 +128,25 @@ export function LoginForm({
       <h1 className="font-heading text-3xl mb-2">{heading}</h1>
       <p className="text-muted-foreground text-sm mb-8">{subtitle}</p>
 
-      <button
-        type="button"
-        onClick={handleGoogleSignIn}
-        disabled={isPending}
-        className="w-full min-h-11 flex items-center justify-center gap-3 rounded-full border border-border bg-white px-6 py-3 text-sm font-medium hover:bg-muted transition-colors disabled:opacity-50"
-      >
-        <GoogleIcon className="w-5 h-5" />
-        Continue with Google
-      </button>
+      {GOOGLE_SIGN_IN_ENABLED && (
+        <>
+          <button
+            type="button"
+            onClick={handleGoogleSignIn}
+            disabled={isPending}
+            className="w-full min-h-11 flex items-center justify-center gap-3 rounded-full border border-border bg-white px-6 py-3 text-sm font-medium hover:bg-muted transition-colors disabled:opacity-50"
+          >
+            <GoogleIcon className="w-5 h-5" />
+            Continue with Google
+          </button>
 
-      <div className="flex items-center gap-4 my-6">
-        <div className="h-px flex-1 bg-border" />
-        <span className="text-xs text-muted-foreground uppercase tracking-wide">or</span>
-        <div className="h-px flex-1 bg-border" />
-      </div>
+          <div className="flex items-center gap-4 my-6">
+            <div className="h-px flex-1 bg-border" />
+            <span className="text-xs text-muted-foreground uppercase tracking-wide">or</span>
+            <div className="h-px flex-1 bg-border" />
+          </div>
+        </>
+      )}
 
       {step === "request" ? (
         <form onSubmit={handleRequestCode} className="space-y-3">
