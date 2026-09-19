@@ -71,7 +71,7 @@ export default async function Home() {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 md:px-6 pt-4">
-        <PromoBannerSwiper images={SECOND_STAGE_BANNERS} href="/products" linkLabel="Shop all products" />
+        <PromoBannerSwiper images={SECOND_STAGE_BANNERS} enquirySource="homepage-promo-banner" />
       </section>
 
       {topLevelCategories.length > 0 && (

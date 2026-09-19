@@ -95,8 +95,11 @@ export default async function ProductPage({
               <ShareButton title={product.name} url={productUrl} />
             </div>
           </div>
-          <div className="mt-2">
+          <div className="mt-2 flex items-center gap-3">
             <PriceDisplay price={product.price} compareAtPrice={product.compare_at_price} size="lg" />
+            {product.net_volume && (
+              <span className="text-sm text-muted-foreground">({product.net_volume})</span>
+            )}
           </div>
 
           {product.description && (

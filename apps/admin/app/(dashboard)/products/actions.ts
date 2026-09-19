@@ -17,6 +17,7 @@ const productInputSchema = z
     compareAtPrice: z.number().positive().nullable(),
     status: z.enum(["draft", "active", "disabled"]),
     categoryId: z.string().uuid().nullable(),
+    netVolume: z.string().optional(),
   })
   .refine((data) => data.compareAtPrice == null || data.compareAtPrice > data.price, {
     message: "Original price must be greater than the current price",
@@ -46,6 +47,7 @@ export async function createProduct(input: z.infer<typeof productInputSchema>): 
       compare_at_price: parsed.data.compareAtPrice,
       status: parsed.data.status,
       category_id: parsed.data.categoryId,
+      net_volume: parsed.data.netVolume || null,
     })
     .select("id")
     .single()
@@ -82,6 +84,7 @@ export async function updateProduct(
       compare_at_price: parsed.data.compareAtPrice,
       status: parsed.data.status,
       category_id: parsed.data.categoryId,
+      net_volume: parsed.data.netVolume || null,
     })
     .eq("id", id)
 
@@ -166,22 +169,23 @@ export async function getProductImageUploadUrl(
   return { success: true, uploadUrl, key }
 }
 
-export async function addProductImage(productId: string, key: string): Promise<ProductActionResult> {
+// Position is passed in rather than computed here (previously: read the
+// current max + 1) — with multiple images uploading concurrently, two
+// calls racing this query could both read the same max and collide on the
+// same position. The caller already has the full image list in hand, so
+// it can hand out distinct positions itself before any of the concurrent
+// calls land.
+export async function addProductImage(
+  productId: string,
+  key: string,
+  position: number
+): Promise<ProductActionResult> {
   await requireStaff()
 
   const supabase = createServiceRoleClient()
-  const { data: existing } = await supabase
-    .from("product_images")
-    .select("position")
-    .eq("product_id", productId)
-    .order("position", { ascending: false })
-    .limit(1)
-
-  const nextPosition = (existing?.[0]?.position ?? -1) + 1
-
   const { error } = await supabase
     .from("product_images")
-    .insert({ product_id: productId, storage_path: key, position: nextPosition })
+    .insert({ product_id: productId, storage_path: key, position })
 
   if (error) {
     return { success: false, error: "Could not save image." }

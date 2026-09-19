@@ -28,39 +28,50 @@ export function ProductImagesManager({
   const [isUploading, setIsUploading] = useState(false)
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
 
+  async function uploadOne(file: File, position: number) {
+    const urlResult = await getProductImageUploadUrl(productId, file.name, file.type)
+    if (!urlResult.success) throw new Error(urlResult.error)
+
+    const uploadResponse = await fetch(urlResult.uploadUrl, {
+      method: "PUT",
+      body: file,
+      headers: { "Content-Type": file.type },
+    })
+    if (!uploadResponse.ok) throw new Error("Upload to storage failed")
+
+    const saveResult = await addProductImage(productId, urlResult.key, position)
+    if (!saveResult.success) throw new Error(saveResult.error)
+  }
+
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    e.target.value = "" // allow re-selecting the same file later
-    if (!file) return
+    const files = Array.from(e.target.files ?? [])
+    e.target.value = "" // allow re-selecting the same file(s) later
+    if (files.length === 0) return
 
     setIsUploading(true)
 
     try {
-      const urlResult = await getProductImageUploadUrl(productId, file.name, file.type)
-      if (!urlResult.success) {
-        toast.error("Could not upload image", urlResult.error)
-        return
-      }
+      // Positions are handed out up front from the list already in hand,
+      // not re-queried per file — see the comment on addProductImage for
+      // why that matters once these run concurrently.
+      const results = await Promise.allSettled(
+        files.map((file, index) => uploadOne(file, images.length + index))
+      )
 
-      const uploadResponse = await fetch(urlResult.uploadUrl, {
-        method: "PUT",
-        body: file,
-        headers: { "Content-Type": file.type },
-      })
-      if (!uploadResponse.ok) {
-        toast.error("Upload to storage failed", "Please try again.")
-        return
-      }
-
-      const saveResult = await addProductImage(productId, urlResult.key)
-      if (!saveResult.success) {
-        toast.error("Could not save image", saveResult.error)
-        return
+      const failures = results.filter((r) => r.status === "rejected") as PromiseRejectedResult[]
+      if (failures.length > 0) {
+        const succeeded = files.length - failures.length
+        toast.error(
+          succeeded > 0
+            ? `${succeeded} of ${files.length} images uploaded`
+            : "Could not upload images",
+          failures[0].reason instanceof Error ? failures[0].reason.message : "Please try again."
+        )
+      } else if (files.length > 1) {
+        toast.success(`${files.length} images uploaded`)
       }
 
       router.refresh()
-    } catch {
-      toast.error("Something went wrong uploading the image.")
     } finally {
       setIsUploading(false)
     }
@@ -114,13 +125,14 @@ export function ProductImagesManager({
           className="aspect-square rounded-lg border border-dashed border-border flex flex-col items-center justify-center gap-1 text-muted-foreground hover:bg-muted transition-colors disabled:opacity-50"
         >
           <Upload className="w-5 h-5" aria-hidden="true" />
-          <span className="text-xs">{isUploading ? "Uploading…" : "Add image"}</span>
+          <span className="text-xs">{isUploading ? "Uploading…" : "Add images"}</span>
         </button>
       </div>
 
       <input
         ref={fileInputRef}
         type="file"
+        multiple
         accept="image/jpeg,image/png,image/webp"
         onChange={handleFileChange}
         className="hidden"

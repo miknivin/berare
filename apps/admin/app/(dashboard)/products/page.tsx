@@ -2,7 +2,8 @@ import Link from "next/link"
 import type { Metadata } from "next"
 import { Pencil } from "lucide-react"
 import { requireStaff } from "@/lib/auth"
-import { getProducts } from "@/lib/data/products"
+import { getProducts, type ProductStatus } from "@/lib/data/products"
+import { getCategories } from "@/lib/data/categories"
 import { formatPrice } from "@/lib/format"
 import { buttonVariants } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -16,6 +17,7 @@ import {
 } from "@/components/ui/table"
 import { ProductStatusToggle } from "@/components/products/product-status-toggle"
 import { ProductDeleteButton } from "@/components/products/product-delete-button"
+import { ProductFiltersBar } from "@/components/products/product-filters-bar"
 import { PaginationNav } from "@/components/shared/pagination-nav"
 import { PageSizeSelect } from "@/components/shared/page-size-select"
 import { IconTooltipButton } from "@/components/shared/icon-tooltip-button"
@@ -29,16 +31,34 @@ const STATUS_VARIANT = {
   disabled: "destructive",
 } as const
 
+const VALID_STATUSES: ProductStatus[] = ["draft", "active", "disabled"]
+
 export default async function ProductsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; pageSize?: string }>
+  searchParams: Promise<{ page?: string; pageSize?: string; search?: string; status?: string; category?: string }>
 }) {
   await requireStaff()
-  const { page: pageParam, pageSize: pageSizeParam } = await searchParams
+  const {
+    page: pageParam,
+    pageSize: pageSizeParam,
+    search,
+    status: statusParam,
+    category: categoryId,
+  } = await searchParams
   const page = Math.max(1, Number(pageParam) || 1)
   const pageSize = parsePageSize(pageSizeParam)
-  const { products, total, totalPages } = await getProducts(page, pageSize)
+  const status = VALID_STATUSES.find((s) => s === statusParam)
+
+  const [{ products, total, totalPages }, categories] = await Promise.all([
+    getProducts(page, pageSize, { search, status, categoryId }),
+    getCategories(),
+  ])
+
+  const extraParams: Record<string, string> = {}
+  if (search) extraParams.search = search
+  if (status) extraParams.status = status
+  if (categoryId) extraParams.category = categoryId
 
   return (
     <div>
@@ -52,12 +72,21 @@ export default async function ProductsPage({
         </Link>
       </div>
 
+      <ProductFiltersBar categories={categories} />
+
       <div className="flex justify-end mb-3">
-        <PageSizeSelect pageSize={pageSize} basePath="/products" defaultPageSize={DEFAULT_PAGE_SIZE} />
+        <PageSizeSelect
+          pageSize={pageSize}
+          basePath="/products"
+          defaultPageSize={DEFAULT_PAGE_SIZE}
+          extraParams={extraParams}
+        />
       </div>
 
       {products.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No products yet.</p>
+        <p className="text-sm text-muted-foreground">
+          {search || status || categoryId ? "No products match these filters." : "No products yet."}
+        </p>
       ) : (
         <Table>
           <TableHeader>
@@ -114,6 +143,7 @@ export default async function ProductsPage({
         basePath="/products"
         pageSize={pageSize}
         defaultPageSize={DEFAULT_PAGE_SIZE}
+        extraParams={extraParams}
       />
     </div>
   )

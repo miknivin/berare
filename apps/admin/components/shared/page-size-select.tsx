@@ -14,10 +14,13 @@ export function PageSizeSelect({
   pageSize,
   basePath,
   defaultPageSize,
+  extraParams,
 }: {
   pageSize: number
   basePath: string
   defaultPageSize: number
+  /** Any other active query params (search, filters, ...) to carry over. */
+  extraParams?: Record<string, string>
 }) {
   const router = useRouter()
 
@@ -26,7 +29,7 @@ export function PageSizeSelect({
     // Changing the page size invalidates the current page number, and a
     // value matching the default is left off the URL entirely to keep
     // links tidy.
-    const params = new URLSearchParams()
+    const params = new URLSearchParams(extraParams)
     if (Number(value) !== defaultPageSize) params.set("pageSize", value)
     const query = params.toString()
     router.push(query ? `${basePath}?${query}` : basePath)

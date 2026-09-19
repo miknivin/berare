@@ -30,6 +30,7 @@ export type ProductDetail = {
   compare_at_price: number | null
   status: ProductStatus
   category_id: string | null
+  net_volume: string | null
   images: ProductImage[]
 }
 
@@ -39,20 +40,34 @@ export type PaginatedProducts = {
   totalPages: number
 }
 
+export type ProductFilters = {
+  search?: string
+  status?: ProductStatus
+  categoryId?: string
+}
+
 // No RLS scoping needed here — the admin app only ever calls this after
 // requireStaff() has already gated the page/action, and uses the
 // service-role client deliberately to see every status (draft/disabled
 // included), not just what a customer's RLS policy would allow.
-export async function getProducts(page = 1, pageSize = DEFAULT_PAGE_SIZE): Promise<PaginatedProducts> {
+export async function getProducts(
+  page = 1,
+  pageSize = DEFAULT_PAGE_SIZE,
+  filters: ProductFilters = {}
+): Promise<PaginatedProducts> {
   const supabase = createServiceRoleClient()
   const from = (page - 1) * pageSize
   const to = from + pageSize - 1
 
-  const { data, error, count } = await supabase
+  let query = supabase
     .from("products")
     .select("id, name, slug, price, compare_at_price, status, categories(id, name)", { count: "exact" })
-    .order("created_at", { ascending: false })
-    .range(from, to)
+
+  if (filters.search) query = query.ilike("name", `%${filters.search}%`)
+  if (filters.status) query = query.eq("status", filters.status)
+  if (filters.categoryId) query = query.eq("category_id", filters.categoryId)
+
+  const { data, error, count } = await query.order("created_at", { ascending: false }).range(from, to)
 
   if (error) throw error
 
@@ -76,7 +91,7 @@ export async function getProductById(id: string): Promise<ProductDetail | null> 
   const { data, error } = await supabase
     .from("products")
     .select(
-      "id, name, slug, description, price, compare_at_price, status, category_id, product_images(id, storage_path, position)"
+      "id, name, slug, description, price, compare_at_price, status, category_id, net_volume, product_images(id, storage_path, position)"
     )
     .eq("id", id)
     .maybeSingle()

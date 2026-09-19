@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, Package, ShoppingCart, Image as ImageIcon, Tags, Users, Star, MessageSquareQuote } from "lucide-react"
+import { LayoutDashboard, Package, ShoppingCart, Image as ImageIcon, Tags, Users, Star, MessageSquareQuote, Inbox } from "lucide-react"
 import { useMobileSidebar } from "./mobile-sidebar-context"
 
 const NAV_ITEMS = [
@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { href: "/products", label: "Products", icon: Package },
   { href: "/categories", label: "Categories", icon: Tags },
   { href: "/orders", label: "Orders", icon: ShoppingCart },
+  { href: "/enquiries", label: "Enquiries", icon: Inbox },
   { href: "/banners", label: "Banners", icon: ImageIcon },
   { href: "/affiliates", label: "Affiliates", icon: Users },
   { href: "/reviews", label: "Reviews", icon: Star },

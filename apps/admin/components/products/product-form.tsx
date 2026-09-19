@@ -33,6 +33,7 @@ export function ProductForm({
   )
   const [status, setStatus] = useState<"draft" | "active" | "disabled">(product?.status ?? "draft")
   const [categoryId, setCategoryId] = useState<string | null>(product?.category_id ?? null)
+  const [netVolume, setNetVolume] = useState(product?.net_volume ?? "")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -48,6 +49,7 @@ export function ProductForm({
       compareAtPrice: compareAtPrice ? Number(compareAtPrice) : null,
       status,
       categoryId,
+      netVolume: netVolume || undefined,
     }
 
     const result = product
@@ -112,6 +114,18 @@ export function ProductForm({
             placeholder="Leave blank for no discount"
           />
         </div>
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="netVolume">
+          Net volume <span className="text-muted-foreground font-normal">(optional)</span>
+        </Label>
+        <Input
+          id="netVolume"
+          value={netVolume}
+          onChange={(e) => setNetVolume(e.target.value)}
+          placeholder="e.g. 100ml, 50g"
+        />
       </div>
 
       <div className="space-y-1.5">

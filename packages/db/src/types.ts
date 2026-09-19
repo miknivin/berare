@@ -277,6 +277,36 @@ export type Database = {
           },
         ]
       }
+      enquiries: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          message: string | null
+          name: string
+          phone: string | null
+          source: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          message?: string | null
+          name: string
+          phone?: string | null
+          source?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          message?: string | null
+          name?: string
+          phone?: string | null
+          source?: string | null
+        }
+        Relationships: []
+      }
       hero_banners: {
         Row: {
           alt_text: string
@@ -544,6 +574,7 @@ export type Database = {
           description: string | null
           id: string
           name: string
+          net_volume: string | null
           price: number
           slug: string
           status: string
@@ -557,6 +588,7 @@ export type Database = {
           description?: string | null
           id?: string
           name: string
+          net_volume?: string | null
           price: number
           slug: string
           status?: string
@@ -570,6 +602,7 @@ export type Database = {
           description?: string | null
           id?: string
           name?: string
+          net_volume?: string | null
           price?: number
           slug?: string
           status?: string

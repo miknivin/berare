@@ -8,6 +8,7 @@ export function PaginationNav({
   basePath,
   pageSize,
   defaultPageSize,
+  extraParams,
 }: {
   page: number
   totalPages: number
@@ -15,11 +16,13 @@ export function PaginationNav({
   /** Current page size — preserved on Previous/Next so it isn't lost on navigation. */
   pageSize?: number
   defaultPageSize?: number
+  /** Any other active query params (search, filters, ...) to carry over. */
+  extraParams?: Record<string, string>
 }) {
   if (totalPages <= 1) return null
 
   function hrefFor(targetPage: number) {
-    const params = new URLSearchParams()
+    const params = new URLSearchParams(extraParams)
     if (targetPage > 1) params.set("page", String(targetPage))
     if (pageSize && pageSize !== defaultPageSize) params.set("pageSize", String(pageSize))
     const query = params.toString()

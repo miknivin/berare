@@ -21,6 +21,7 @@ export type ProductListItem = {
 
 export type ProductDetail = ProductListItem & {
   description: string | null
+  net_volume: string | null
   categories: { id: string; name: string; slug: string } | null
 }
 
@@ -54,7 +55,7 @@ export async function getProductBySlug(slug: string): Promise<ProductDetail | nu
   const { data, error } = await supabase
     .from("products")
     .select(
-      "id, name, slug, description, price, compare_at_price, currency, category_id, product_images(id, storage_path, position), categories(id, name, slug)"
+      "id, name, slug, description, price, compare_at_price, currency, category_id, net_volume, product_images(id, storage_path, position), categories(id, name, slug)"
     )
     .eq("slug", slug)
     .eq("status", "active")
