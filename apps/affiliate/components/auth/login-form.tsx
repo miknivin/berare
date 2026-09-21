@@ -109,6 +109,10 @@ export function LoginForm() {
                 placeholder="you@example.com"
               />
             </div>
+            <p className="text-xs text-muted-foreground">
+              New affiliate? Enter your email above to request access — we&apos;ll walk you through
+              applying next.
+            </p>
             <Button type="submit" className="w-full h-9" disabled={isPending || !email}>
               {isPending ? "Sending code…" : "Send code"}
             </Button>
