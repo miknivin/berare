@@ -2,6 +2,7 @@
 
 import { useState, useTransition, type FormEvent } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
+import Link from "next/link"
 import { createBrowserClient } from "@berare/db/browser"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -9,8 +10,9 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 
 type Step = "request" | "verify"
+type Mode = "signin" | "apply"
 
-export function LoginForm() {
+export function LoginForm({ mode = "signin" }: { mode?: Mode }) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const next = searchParams.get("next") ?? "/"
@@ -46,7 +48,8 @@ export function LoginForm() {
         setError(friendlyError(otpErr.message))
         return
       }
-      setStatusMessage(`We sent a 6-digit code to ${email}.`)
+      // No statusMessage here — the card description already says "We sent
+      // a 6-digit code to <email>" once step flips to "verify".
       setStep("verify")
     })
   }
@@ -91,8 +94,16 @@ export function LoginForm() {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle className="text-xl">Affiliate sign in</CardTitle>
-        <CardDescription>Sign in to manage your links and earnings.</CardDescription>
+        <CardTitle className="text-xl">
+          {step === "verify" ? "Enter your code" : mode === "signin" ? "Affiliate sign in" : "Request affiliate access"}
+        </CardTitle>
+        <CardDescription>
+          {step === "verify"
+            ? `We sent a 6-digit code to ${email}.`
+            : mode === "signin"
+              ? "Sign in to manage your links and earnings."
+              : "New here? Enter your email and we'll walk you through applying."}
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {step === "request" ? (
@@ -109,13 +120,26 @@ export function LoginForm() {
                 placeholder="you@example.com"
               />
             </div>
-            <p className="text-xs text-muted-foreground">
-              New affiliate? Enter your email above to request access — we&apos;ll walk you through
-              applying next.
-            </p>
             <Button type="submit" className="w-full h-9" disabled={isPending || !email}>
-              {isPending ? "Sending code…" : "Send code"}
+              {isPending ? "Sending code…" : mode === "signin" ? "Send code" : "Request Affiliate Access"}
             </Button>
+            <p className="text-center text-xs text-muted-foreground">
+              {mode === "signin" ? (
+                <>
+                  New affiliate?{" "}
+                  <Link href="/auth/request-access" className="text-foreground underline underline-offset-2">
+                    Request access
+                  </Link>
+                </>
+              ) : (
+                <>
+                  Already have an account?{" "}
+                  <Link href="/auth/login" className="text-foreground underline underline-offset-2">
+                    Sign in
+                  </Link>
+                </>
+              )}
+            </p>
           </form>
         ) : (
           <form onSubmit={handleVerifyCode} className="space-y-3">
