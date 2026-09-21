@@ -4,12 +4,13 @@ import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, Link2, Wallet, LogOut, Menu, X } from "lucide-react"
+import { LayoutDashboard, Link2, Wallet, Settings, LogOut, Menu, X } from "lucide-react"
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/links", label: "Links", icon: Link2 },
   { href: "/earnings", label: "Earnings", icon: Wallet },
+  { href: "/settings", label: "Settings", icon: Settings },
 ]
 
 export function AffiliateSidebar() {

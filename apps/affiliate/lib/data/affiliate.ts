@@ -53,6 +53,28 @@ export function availablePointsFrom(entries: PointsLedgerEntry[]): number {
   return entries.filter((e) => e.status === "confirmed").reduce((sum, e) => sum + Number(e.points), 0)
 }
 
+export type WithdrawalRequest = {
+  id: string
+  points_requested: number
+  amount_requested: number
+  status: "requested" | "approved" | "rejected" | "paid"
+  payout_reference: string | null
+  admin_note: string | null
+  created_at: string
+}
+
+export async function getMyWithdrawals(affiliateId: string): Promise<WithdrawalRequest[]> {
+  const supabase = await createServerSupabaseClient()
+  const { data, error } = await supabase
+    .from("withdrawal_requests")
+    .select("id, points_requested, amount_requested, status, payout_reference, admin_note, created_at")
+    .eq("affiliate_id", affiliateId)
+    .order("created_at", { ascending: false })
+
+  if (error) throw error
+  return data as WithdrawalRequest[]
+}
+
 export type SelectableProduct = { id: string; name: string }
 
 export async function getActiveProducts(): Promise<SelectableProduct[]> {

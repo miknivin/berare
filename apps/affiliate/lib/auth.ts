@@ -2,10 +2,17 @@ import "server-only"
 import { redirect } from "next/navigation"
 import { createServerSupabaseClient } from "@berare/db/server"
 
+export type PayoutDetails = {
+  accountHolderName: string
+  accountNumber: string
+  ifscCode: string
+}
+
 export type AffiliateRecord = {
   id: string
   referral_code: string
   status: "active" | "suspended" | "deactivated"
+  payout_details: PayoutDetails | null
 }
 
 /**
@@ -26,7 +33,7 @@ export async function requireActiveAffiliate() {
 
   const { data: affiliate } = await supabase
     .from("affiliates")
-    .select("id, referral_code, status")
+    .select("id, referral_code, status, payout_details")
     .eq("profile_id", user.id)
     .maybeSingle()
 
@@ -34,5 +41,5 @@ export async function requireActiveAffiliate() {
     redirect("/")
   }
 
-  return { user, affiliate: affiliate as AffiliateRecord }
+  return { user, affiliate: affiliate as unknown as AffiliateRecord }
 }

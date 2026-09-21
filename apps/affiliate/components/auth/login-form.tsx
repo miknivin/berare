@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { GoogleIcon } from "@/components/icons/google-icon"
 
 type Step = "request" | "verify"
 
@@ -15,12 +14,11 @@ export function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const next = searchParams.get("next") ?? "/"
-  const oauthError = searchParams.get("error")
 
   const [step, setStep] = useState<Step>("request")
   const [email, setEmail] = useState("")
   const [code, setCode] = useState("")
-  const [error, setError] = useState<string | null>(oauthError)
+  const [error, setError] = useState<string | null>(null)
   const [statusMessage, setStatusMessage] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
@@ -33,24 +31,6 @@ export function LoginForm() {
       return "That code is incorrect or has expired. Request a new one."
     }
     return "Something went wrong. Please try again."
-  }
-
-  async function handleGoogleSignIn() {
-    setError(null)
-    const supabase = createBrowserClient()
-    const { data, error: oauthErr } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
-      },
-    })
-    if (oauthErr) {
-      setError(friendlyError(oauthErr.message))
-      return
-    }
-    if (data?.url) {
-      window.location.href = data.url
-    }
   }
 
   function handleRequestCode(e: FormEvent) {
@@ -115,23 +95,6 @@ export function LoginForm() {
         <CardDescription>Sign in to manage your links and earnings.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <Button
-          type="button"
-          variant="outline"
-          className="w-full h-9"
-          onClick={handleGoogleSignIn}
-          disabled={isPending}
-        >
-          <GoogleIcon className="size-4" />
-          Continue with Google
-        </Button>
-
-        <div className="flex items-center gap-3">
-          <div className="h-px flex-1 bg-border" />
-          <span className="text-xs text-muted-foreground uppercase">or</span>
-          <div className="h-px flex-1 bg-border" />
-        </div>
-
         {step === "request" ? (
           <form onSubmit={handleRequestCode} className="space-y-3">
             <div className="space-y-1.5">
