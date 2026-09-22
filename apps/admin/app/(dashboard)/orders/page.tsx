@@ -1,9 +1,11 @@
 import Link from "next/link"
 import type { Metadata } from "next"
+import { Eye } from "lucide-react"
 import { requireStaff } from "@/lib/auth"
 import { getOrders } from "@/lib/data/orders"
 import { formatPrice } from "@/lib/format"
 import { Badge } from "@/components/ui/badge"
+import { buttonVariants } from "@/components/ui/button"
 import {
   Table,
   TableBody,
@@ -12,6 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { IconTooltipButton } from "@/components/shared/icon-tooltip-button"
 
 export const metadata: Metadata = { title: "Orders" }
 
@@ -46,6 +49,7 @@ export default async function OrdersPage() {
               <TableHead>Total</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Placed</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -72,6 +76,20 @@ export default async function OrdersPage() {
                     month: "short",
                     year: "numeric",
                   })}
+                </TableCell>
+                <TableCell className="text-right">
+                  <IconTooltipButton
+                    label="View details"
+                    render={
+                      <Link
+                        href={`/orders/${order.id}`}
+                        className={buttonVariants({ variant: "ghost", size: "icon-sm" })}
+                        aria-label="View details"
+                      />
+                    }
+                  >
+                    <Eye className="w-4 h-4" aria-hidden="true" />
+                  </IconTooltipButton>
                 </TableCell>
               </TableRow>
             ))}
