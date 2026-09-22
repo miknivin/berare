@@ -23,6 +23,9 @@ const ORDER_STATUS_VARIANT = {
   shipped: "default",
   delivered: "default",
   cancelled: "destructive",
+  return_requested: "secondary",
+  return_accepted: "secondary",
+  returned: "outline",
 } as const
 
 function formatDate(value: string) {

@@ -1,6 +1,14 @@
 import { createServiceRoleClient } from "@berare/db/service-role"
 
-export type OrderStatus = "pending" | "confirmed" | "shipped" | "delivered" | "cancelled"
+export type OrderStatus =
+  | "pending"
+  | "confirmed"
+  | "shipped"
+  | "delivered"
+  | "cancelled"
+  | "return_requested"
+  | "return_accepted"
+  | "returned"
 
 export type OrderListItem = {
   id: string

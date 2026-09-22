@@ -393,6 +393,7 @@ export type Database = {
           affiliate_ref_code: string | null
           created_at: string
           customer_id: string
+          delivered_at: string | null
           id: string
           payment_method: string
           razorpay_order_id: string | null
@@ -406,6 +407,7 @@ export type Database = {
           affiliate_ref_code?: string | null
           created_at?: string
           customer_id: string
+          delivered_at?: string | null
           id?: string
           payment_method?: string
           razorpay_order_id?: string | null
@@ -419,6 +421,7 @@ export type Database = {
           affiliate_ref_code?: string | null
           created_at?: string
           customer_id?: string
+          delivered_at?: string | null
           id?: string
           payment_method?: string
           razorpay_order_id?: string | null
@@ -650,6 +653,67 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      return_requests: {
+        Row: {
+          admin_note: string | null
+          created_at: string
+          customer_id: string
+          id: string
+          message: string | null
+          order_id: string
+          reason: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+        }
+        Insert: {
+          admin_note?: string | null
+          created_at?: string
+          customer_id: string
+          id?: string
+          message?: string | null
+          order_id: string
+          reason: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+        }
+        Update: {
+          admin_note?: string | null
+          created_at?: string
+          customer_id?: string
+          id?: string
+          message?: string | null
+          order_id?: string
+          reason?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "return_requests_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "return_requests_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "return_requests_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       staff: {
         Row: {

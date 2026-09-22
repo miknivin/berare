@@ -3,11 +3,12 @@
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, Package, User, LogOut } from "lucide-react"
+import { LayoutDashboard, Package, RotateCcw, User, LogOut } from "lucide-react"
 
 const NAV_ITEMS = [
   { href: "/account", label: "Dashboard", icon: LayoutDashboard },
   { href: "/account/orders", label: "Orders", icon: Package },
+  { href: "/account/returns", label: "Returns", icon: RotateCcw },
   { href: "/account/profile", label: "Profile", icon: User },
 ]
 

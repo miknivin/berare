@@ -5,6 +5,7 @@ export type OrderDetail = {
   status: string
   payment_method: "razorpay" | "cod"
   total_amount: number
+  delivered_at: string | null
   shipping_address: {
     fullName: string
     phone: string
@@ -31,7 +32,7 @@ export async function getOrderById(id: string): Promise<OrderDetail | null> {
   const { data, error } = await supabase
     .from("orders")
     .select(
-      "id, status, payment_method, total_amount, shipping_address, created_at, order_items(id, quantity, unit_price, products(name, slug))"
+      "id, status, payment_method, total_amount, delivered_at, shipping_address, created_at, order_items(id, quantity, unit_price, products(name, slug))"
     )
     .eq("id", id)
     .maybeSingle()
