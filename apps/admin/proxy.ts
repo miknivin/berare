@@ -10,7 +10,11 @@ export async function proxy(request: NextRequest) {
   const { supabaseResponse, user } = await updateSupabaseSession(request)
 
   const isAuthRoute = request.nextUrl.pathname.startsWith("/auth")
-  if (!user && !isAuthRoute) {
+  // API routes authenticate themselves (e.g. /api/cron/* checks a shared
+  // secret header) — a caller like Vercel Cron has no Supabase session to
+  // redirect, and a redirect response would make no sense to it anyway.
+  const isApiRoute = request.nextUrl.pathname.startsWith("/api/")
+  if (!user && !isAuthRoute && !isApiRoute) {
     const url = request.nextUrl.clone()
     url.pathname = "/auth/login"
     return NextResponse.redirect(url)

@@ -61,6 +61,20 @@ export async function createProduct(input: z.infer<typeof productInputSchema>): 
     }
   }
 
+  // Ledger entry for the starting stock — keeps reconcile_product_stock's
+  // sum-of-movements accurate for this product from the moment it exists,
+  // same as the 0019 migration's backfill for products created before it.
+  if (parsed.data.stockQuantity > 0) {
+    const { error: movementError } = await supabase.from("stock_movements").insert({
+      product_id: data.id,
+      quantity_delta: parsed.data.stockQuantity,
+      reason: "manual_adjustment",
+    })
+    if (movementError) {
+      console.error("Failed to log initial stock movement", data.id, movementError)
+    }
+  }
+
   revalidatePath("/products")
   return { success: true, id: data.id }
 }
@@ -77,6 +91,18 @@ export async function updateProduct(
   }
 
   const supabase = createServiceRoleClient()
+
+  // Needed to log the delta below — fetched before the update so it's
+  // always the pre-change value, never a stale read racing another save.
+  const { data: existing, error: existingError } = await supabase
+    .from("products")
+    .select("stock_quantity")
+    .eq("id", id)
+    .single()
+  if (existingError) {
+    return { success: false, error: "Could not update product." }
+  }
+
   const { error } = await supabase
     .from("products")
     .update({
@@ -93,6 +119,21 @@ export async function updateProduct(
 
   if (error) {
     return { success: false, error: "Could not update product." }
+  }
+
+  // Log the manual adjustment so stock_movements stays the source of
+  // truth reconcile_product_stock trusts — without this, an admin edit
+  // would silently diverge the cache from the ledger.
+  const delta = parsed.data.stockQuantity - existing.stock_quantity
+  if (delta !== 0) {
+    const { error: movementError } = await supabase.from("stock_movements").insert({
+      product_id: id,
+      quantity_delta: delta,
+      reason: "manual_adjustment",
+    })
+    if (movementError) {
+      console.error("Failed to log stock movement", id, movementError)
+    }
   }
 
   revalidatePath("/products")

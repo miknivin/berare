@@ -669,6 +669,48 @@ export type Database = {
         }
         Relationships: []
       }
+      stock_movements: {
+        Row: {
+          created_at: string
+          id: string
+          order_id: string | null
+          product_id: string
+          quantity_delta: number
+          reason: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          order_id?: string | null
+          product_id: string
+          quantity_delta: number
+          reason: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          order_id?: string | null
+          product_id?: string
+          quantity_delta?: number
+          reason?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_movements_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_movements_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       testimonials: {
         Row: {
           body: string
@@ -771,6 +813,18 @@ export type Database = {
           order_count: number
           product_id: string
         }[]
+      }
+      reconcile_product_stock: {
+        Args: { p_product_id?: string }
+        Returns: {
+          new_quantity: number
+          old_quantity: number
+          product_id: string
+        }[]
+      }
+      reconcile_stock_for_order: {
+        Args: { p_order_id: string }
+        Returns: undefined
       }
       record_affiliate_attribution: {
         Args: { p_order_id: string }

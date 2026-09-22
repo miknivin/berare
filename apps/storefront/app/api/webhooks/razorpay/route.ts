@@ -1,6 +1,6 @@
 import "server-only"
 import crypto from "node:crypto"
-import { NextResponse, type NextRequest } from "next/server"
+import { NextResponse, after, type NextRequest } from "next/server"
 import { createServiceRoleClient } from "@berare/db/service-role"
 
 // Razorpay calls this directly (no customer session), so every DB write
@@ -55,6 +55,17 @@ export async function POST(request: NextRequest) {
       if (attributionError) {
         console.error("Affiliate attribution failed for order", order.id, attributionError)
       }
+
+      // Same fire-and-forget reconciliation as the COD path in
+      // /api/orders — the confirm trigger already logged the
+      // stock_movements rows; this just brings the cached
+      // products.stock_quantity back in sync, off Razorpay's response path.
+      after(async () => {
+        const { error } = await supabase.rpc("reconcile_stock_for_order", { p_order_id: order.id })
+        if (error) {
+          console.error("Stock reconciliation failed for order", order.id, error)
+        }
+      })
     }
   }
 

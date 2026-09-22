@@ -1,4 +1,4 @@
-import { NextResponse, type NextRequest } from "next/server"
+import { NextResponse, after, type NextRequest } from "next/server"
 import { z } from "zod"
 import { cookies } from "next/headers"
 import { createServerSupabaseClient } from "@berare/db/server"
@@ -148,6 +148,18 @@ export async function POST(request: NextRequest) {
     if (attributionError) {
       console.error("Affiliate attribution failed for COD order", order.id, attributionError)
     }
+
+    // The order-confirm trigger already logged stock_movements rows
+    // (fast, no lock contention) — this brings products.stock_quantity's
+    // cache back in sync, but only after the response is already on its
+    // way to the customer, so a slow/failed reconcile here never affects
+    // checkout. The daily cron is the backstop if this never runs.
+    after(async () => {
+      const { error } = await supabase.rpc("reconcile_stock_for_order", { p_order_id: order.id })
+      if (error) {
+        console.error("Stock reconciliation failed for order", order.id, error)
+      }
+    })
 
     return NextResponse.json({ orderId: order.id, paymentMethod: "cod" as const })
   }
