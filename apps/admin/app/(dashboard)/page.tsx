@@ -121,8 +121,11 @@ export default async function DashboardPage() {
         </Card>
 
         <Card>
-          <CardHeader>
+          <CardHeader className="flex items-center justify-between">
             <CardTitle>Recent Users</CardTitle>
+            <Link href="/users" className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2">
+              View all
+            </Link>
           </CardHeader>
           <CardContent>
             {recentUsers.length === 0 ? (

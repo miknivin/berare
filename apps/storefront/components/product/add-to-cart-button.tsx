@@ -9,6 +9,7 @@ export function AddToCartButton({ product }: { product: ProductDetail }) {
   const [quantity, setQuantity] = useState(1)
   const [justAdded, setJustAdded] = useState(false)
   const addItem = useCartStore((state) => state.addItem)
+  const outOfStock = product.stock_quantity <= 0
 
   function handleAdd() {
     const primaryImage = [...product.product_images].sort((a, b) => a.position - b.position)[0]
@@ -24,6 +25,20 @@ export function AddToCartButton({ product }: { product: ProductDetail }) {
     )
     setJustAdded(true)
     setTimeout(() => setJustAdded(false), 2000)
+  }
+
+  if (outOfStock) {
+    return (
+      <div className="flex flex-col gap-2">
+        <button
+          type="button"
+          disabled
+          className="min-h-12 rounded-full bg-muted text-muted-foreground px-8 py-3 text-sm font-medium cursor-not-allowed"
+        >
+          Out of Stock
+        </button>
+      </div>
+    )
   }
 
   return (
@@ -44,13 +59,16 @@ export function AddToCartButton({ product }: { product: ProductDetail }) {
           </span>
           <button
             type="button"
-            onClick={() => setQuantity((q) => q + 1)}
+            onClick={() => setQuantity((q) => Math.min(product.stock_quantity, q + 1))}
             className="w-11 h-11 flex items-center justify-center"
             aria-label="Increase quantity"
           >
             <Plus className="w-4 h-4" aria-hidden="true" />
           </button>
         </div>
+        {product.stock_quantity <= 5 && (
+          <span className="text-xs text-destructive">Only {product.stock_quantity} left</span>
+        )}
       </div>
 
       <button

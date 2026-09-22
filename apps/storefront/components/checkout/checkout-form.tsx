@@ -1,23 +1,32 @@
 "use client"
 
-import { useEffect, useState, type FormEvent } from "react"
+import { useEffect, useMemo, useState, type FormEvent } from "react"
 import { useRouter } from "next/navigation"
 import { Banknote, CreditCard } from "lucide-react"
+import { Country, State } from "country-state-city"
 import { useCartStore, useCartSubtotal } from "@/lib/store/cart"
 import { formatPrice } from "@/lib/format"
 import { loadRazorpayScript } from "@/lib/load-razorpay-script"
 
+// Internal-only form state: `countryCode`/state are ISO codes used to look
+// up the states list and dial code. Submitted to the API as plain names
+// (see handleSubmit) to match the free-text city/pincode fields already
+// stored on orders.shipping_address.
 type ShippingAddress = {
   fullName: string
   phone: string
   addressLine1: string
   addressLine2: string
   city: string
+  countryCode: string
   state: string
   pincode: string
 }
 
 type PaymentMethod = "razorpay" | "cod"
+
+const DEFAULT_COUNTRY_CODE = "IN"
+const DEFAULT_STATE_NAME = "Kerala"
 
 const EMPTY_ADDRESS: ShippingAddress = {
   fullName: "",
@@ -25,8 +34,16 @@ const EMPTY_ADDRESS: ShippingAddress = {
   addressLine1: "",
   addressLine2: "",
   city: "",
-  state: "",
+  countryCode: DEFAULT_COUNTRY_CODE,
+  state: DEFAULT_STATE_NAME,
   pincode: "",
+}
+
+const ALL_COUNTRIES = Country.getAllCountries()
+
+function dialCodeFor(countryCode: string): string {
+  const phonecode = Country.getCountryByCode(countryCode)?.phonecode ?? ""
+  return phonecode.startsWith("+") ? phonecode : `+${phonecode}`
 }
 
 export function CheckoutForm({ userEmail }: { userEmail: string }) {
@@ -40,6 +57,9 @@ export function CheckoutForm({ userEmail }: { userEmail: string }) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  const states = useMemo(() => State.getStatesOfCountry(address.countryCode), [address.countryCode])
+  const dialCode = useMemo(() => dialCodeFor(address.countryCode), [address.countryCode])
+
   useEffect(() => {
     if (items.length === 0) {
       router.replace("/cart")
@@ -50,6 +70,16 @@ export function CheckoutForm({ userEmail }: { userEmail: string }) {
   function updateField(field: keyof ShippingAddress) {
     return (e: React.ChangeEvent<HTMLInputElement>) =>
       setAddress((prev) => ({ ...prev, [field]: e.target.value }))
+  }
+
+  function handleCountryChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    const countryCode = e.target.value
+    const nextStates = State.getStatesOfCountry(countryCode)
+    setAddress((prev) => ({
+      ...prev,
+      countryCode,
+      state: countryCode === DEFAULT_COUNTRY_CODE ? DEFAULT_STATE_NAME : (nextStates[0]?.name ?? ""),
+    }))
   }
 
   async function handleSubmit(e: FormEvent) {
@@ -63,7 +93,16 @@ export function CheckoutForm({ userEmail }: { userEmail: string }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           items: items.map((item) => ({ productId: item.productId, quantity: item.quantity })),
-          shippingAddress: address,
+          shippingAddress: {
+            fullName: address.fullName,
+            phone: `${dialCode}${address.phone}`,
+            addressLine1: address.addressLine1,
+            addressLine2: address.addressLine2,
+            city: address.city,
+            state: address.state,
+            pincode: address.pincode,
+            country: Country.getCountryByCode(address.countryCode)?.name ?? address.countryCode,
+          },
           paymentMethod,
         }),
       })
@@ -118,14 +157,39 @@ export function CheckoutForm({ userEmail }: { userEmail: string }) {
 
         <div className="grid sm:grid-cols-2 gap-4">
           <Field label="Full name" value={address.fullName} onChange={updateField("fullName")} autoComplete="name" />
-          <Field
-            label="Phone"
-            value={address.phone}
-            onChange={updateField("phone")}
-            type="tel"
-            autoComplete="tel"
-          />
+          <label className="block">
+            <span className="block text-xs text-muted-foreground mb-1">Phone</span>
+            <div className="flex gap-2">
+              <span className="flex items-center justify-center min-h-11 px-3 rounded-lg border border-border bg-muted text-sm text-muted-foreground shrink-0">
+                {dialCode}
+              </span>
+              <input
+                type="tel"
+                value={address.phone}
+                onChange={updateField("phone")}
+                required
+                autoComplete="tel"
+                className="w-full min-h-11 rounded-lg border border-border bg-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+          </label>
         </div>
+
+        <label className="block">
+          <span className="block text-xs text-muted-foreground mb-1">Country</span>
+          <select
+            value={address.countryCode}
+            onChange={handleCountryChange}
+            autoComplete="country"
+            className="w-full min-h-11 rounded-lg border border-border bg-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          >
+            {ALL_COUNTRIES.map((country) => (
+              <option key={country.isoCode} value={country.isoCode}>
+                {country.flag} {country.name}
+              </option>
+            ))}
+          </select>
+        </label>
 
         <Field
           label="Address line 1"
@@ -143,7 +207,31 @@ export function CheckoutForm({ userEmail }: { userEmail: string }) {
 
         <div className="grid sm:grid-cols-3 gap-4">
           <Field label="City" value={address.city} onChange={updateField("city")} autoComplete="address-level2" />
-          <Field label="State" value={address.state} onChange={updateField("state")} autoComplete="address-level1" />
+          {states.length > 0 ? (
+            <label className="block">
+              <span className="block text-xs text-muted-foreground mb-1">State</span>
+              <select
+                value={address.state}
+                onChange={(e) => setAddress((prev) => ({ ...prev, state: e.target.value }))}
+                required
+                autoComplete="address-level1"
+                className="w-full min-h-11 rounded-lg border border-border bg-white px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              >
+                {states.map((state) => (
+                  <option key={state.isoCode} value={state.name}>
+                    {state.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : (
+            <Field
+              label="State"
+              value={address.state}
+              onChange={updateField("state")}
+              autoComplete="address-level1"
+            />
+          )}
           <Field
             label="Pincode"
             value={address.pincode}

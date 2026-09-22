@@ -12,11 +12,18 @@ export function ProductCard({ product }: { product: ProductListItem }) {
   return (
     <div className="product-card-parent">
       <Link href={`/products/${product.slug}`} className="product-card">
-        <ProductImage
-          images={product.product_images}
-          alt={product.name}
-          className="product-card__image aspect-square rounded-xl w-full shadow-sm"
-        />
+        <div className="relative">
+          <ProductImage
+            images={product.product_images}
+            alt={product.name}
+            className="product-card__image aspect-square rounded-xl w-full shadow-sm"
+          />
+          {product.stock_quantity <= 0 && (
+            <span className="absolute bottom-2 left-2 rounded-full bg-foreground/80 px-2.5 py-1 text-xs font-medium text-background">
+              Out of Stock
+            </span>
+          )}
+        </div>
         <div className="product-card__info">
           <h3 className="product-card__title mt-3 text-sm font-medium line-clamp-2">{product.name}</h3>
           <div className="mt-1">

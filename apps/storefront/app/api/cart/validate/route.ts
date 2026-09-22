@@ -8,6 +8,7 @@ export type ValidatedProduct = {
   slug: string
   price: number
   image: string | null
+  stockQuantity: number
 }
 
 // Called once on app load (see cart-validator.tsx) to reconcile whatever
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest) {
   const supabase = await createServerSupabaseClient()
   const { data, error } = await supabase
     .from("products")
-    .select("id, name, slug, price, product_images(storage_path, position)")
+    .select("id, name, slug, price, stock_quantity, product_images(storage_path, position)")
     .in("id", productIds)
 
   if (error) {
@@ -44,6 +45,7 @@ export async function POST(request: NextRequest) {
       slug: product.slug,
       price: product.price,
       image: primaryImage?.storage_path ?? null,
+      stockQuantity: product.stock_quantity,
     }
   })
 

@@ -16,12 +16,15 @@ const orderRequestSchema = z.object({
     .min(1),
   shippingAddress: z.object({
     fullName: z.string().min(1),
-    phone: z.string().min(10).max(15),
+    // Includes the country's dial code (e.g. "+919876543210"), so the
+    // previous 15-char cap is bumped slightly for longer dial codes.
+    phone: z.string().min(10).max(20),
     addressLine1: z.string().min(1),
     addressLine2: z.string().optional(),
     city: z.string().min(1),
     state: z.string().min(1),
     pincode: z.string().min(6).max(6),
+    country: z.string().min(1),
   }),
   paymentMethod: z.enum(["razorpay", "cod"]),
 })
@@ -49,7 +52,7 @@ export async function POST(request: NextRequest) {
   const productIds = items.map((i) => i.productId)
   const { data: products, error: productsError } = await supabase
     .from("products")
-    .select("id, price, status")
+    .select("id, name, price, status, stock_quantity")
     .in("id", productIds)
 
   if (productsError) {
@@ -62,6 +65,17 @@ export async function POST(request: NextRequest) {
     if (!product || product.status !== "active") {
       return NextResponse.json(
         { error: "One or more items in your cart are no longer available." },
+        { status: 409 }
+      )
+    }
+    if (item.quantity > product.stock_quantity) {
+      return NextResponse.json(
+        {
+          error:
+            product.stock_quantity > 0
+              ? `Only ${product.stock_quantity} of "${product.name}" left in stock.`
+              : `"${product.name}" is out of stock.`,
+        },
         { status: 409 }
       )
     }

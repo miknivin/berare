@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { requireStaff } from "@/lib/auth"
 import { getAffiliateApplications, getAffiliates } from "@/lib/data/affiliates"
+import { getAffiliateSettings } from "@/lib/data/affiliate-settings"
 import { Badge } from "@/components/ui/badge"
 import {
   Table,
@@ -12,6 +13,8 @@ import {
 } from "@/components/ui/table"
 import { ApplicationActions } from "@/components/affiliates/application-actions"
 import { AffiliateStatusToggle } from "@/components/affiliates/affiliate-status-toggle"
+import { AffiliateSettingsDialog } from "@/components/affiliates/affiliate-settings-dialog"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 
 export const metadata: Metadata = { title: "Affiliates" }
 
@@ -33,110 +36,122 @@ function formatDate(value: string) {
 
 export default async function AffiliatesPage() {
   await requireStaff()
-  const [applications, affiliates] = await Promise.all([getAffiliateApplications(), getAffiliates()])
+  const [applications, affiliates, settings] = await Promise.all([
+    getAffiliateApplications(),
+    getAffiliates(),
+    getAffiliateSettings(),
+  ])
 
   const pendingCount = applications.filter((a) => a.status === "pending").length
 
   return (
     <div className="space-y-10">
-      <div>
-        <h1 className="text-xl font-semibold">Affiliates</h1>
-        <p className="text-sm text-muted-foreground">
-          {affiliates.length} active affiliates &middot; {pendingCount} pending applications
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-xl font-semibold">Affiliates</h1>
+          <p className="text-sm text-muted-foreground">
+            {affiliates.length} active affiliates &middot; {pendingCount} pending applications
+          </p>
+        </div>
+        <AffiliateSettingsDialog settings={settings} />
       </div>
 
-      <div>
-        <h2 className="text-sm font-medium mb-3">Applications</h2>
-        {applications.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No applications yet.</p>
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Contact</TableHead>
-                <TableHead>Message</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Applied</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {applications.map((application) => (
-                <TableRow key={application.id}>
-                  <TableCell className="font-medium">{application.full_name}</TableCell>
-                  <TableCell className="text-muted-foreground text-xs">
-                    {application.email}
-                    <br />
-                    {application.phone}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground text-xs max-w-60 truncate">
-                    {application.message ?? "—"}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={APPLICATION_STATUS_VARIANT[application.status]}>{application.status}</Badge>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground text-sm">
-                    {formatDate(application.created_at)}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {application.status === "pending" ? (
-                      <ApplicationActions id={application.id} fullName={application.full_name} />
-                    ) : (
-                      <span className="text-xs text-muted-foreground">
-                        {application.status === "rejected" && application.admin_note
-                          ? application.admin_note
-                          : "—"}
-                      </span>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        )}
-      </div>
+      <Tabs defaultValue="requests">
+        <TabsList>
+          <TabsTrigger value="requests">Requests{pendingCount > 0 && ` (${pendingCount})`}</TabsTrigger>
+          <TabsTrigger value="active">Active Affiliates ({affiliates.length})</TabsTrigger>
+        </TabsList>
 
-      <div>
-        <h2 className="text-sm font-medium mb-3">Active Affiliates</h2>
-        {affiliates.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No approved affiliates yet.</p>
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Referral Code</TableHead>
-                <TableHead>Clicks</TableHead>
-                <TableHead>Orders</TableHead>
-                <TableHead>Points Balance</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {affiliates.map((affiliate) => (
-                <TableRow key={affiliate.id}>
-                  <TableCell className="font-medium">
-                    {affiliate.profiles?.full_name ?? affiliate.profiles?.email ?? "—"}
-                  </TableCell>
-                  <TableCell className="font-mono text-xs">{affiliate.referral_code}</TableCell>
-                  <TableCell>{affiliate.clicks_count}</TableCell>
-                  <TableCell>{affiliate.orders_count}</TableCell>
-                  <TableCell>{affiliate.available_points}</TableCell>
-                  <TableCell>
-                    <Badge variant={AFFILIATE_STATUS_VARIANT[affiliate.status]}>{affiliate.status}</Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <AffiliateStatusToggle id={affiliate.id} status={affiliate.status} />
-                  </TableCell>
+        <TabsContent value="requests">
+          {applications.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No applications yet.</p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Contact</TableHead>
+                  <TableHead>Message</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Applied</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        )}
-      </div>
+              </TableHeader>
+              <TableBody>
+                {applications.map((application) => (
+                  <TableRow key={application.id}>
+                    <TableCell className="font-medium">{application.full_name}</TableCell>
+                    <TableCell className="text-muted-foreground text-xs">
+                      {application.email}
+                      <br />
+                      {application.phone}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground text-xs max-w-60 truncate">
+                      {application.message ?? "—"}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={APPLICATION_STATUS_VARIANT[application.status]}>{application.status}</Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground text-sm">
+                      {formatDate(application.created_at)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {application.status === "pending" ? (
+                        <ApplicationActions id={application.id} fullName={application.full_name} />
+                      ) : (
+                        <span className="text-xs text-muted-foreground">
+                          {application.status === "rejected" && application.admin_note
+                            ? application.admin_note
+                            : "—"}
+                        </span>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </TabsContent>
+
+        <TabsContent value="active">
+          {affiliates.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No approved affiliates yet.</p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Referral Code</TableHead>
+                  <TableHead>Clicks</TableHead>
+                  <TableHead>Orders</TableHead>
+                  <TableHead>Points Balance</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {affiliates.map((affiliate) => (
+                  <TableRow key={affiliate.id}>
+                    <TableCell className="font-medium">
+                      {affiliate.profiles?.full_name ?? affiliate.profiles?.email ?? "—"}
+                    </TableCell>
+                    <TableCell className="font-mono text-xs">{affiliate.referral_code}</TableCell>
+                    <TableCell>{affiliate.clicks_count}</TableCell>
+                    <TableCell>{affiliate.orders_count}</TableCell>
+                    <TableCell>{affiliate.available_points}</TableCell>
+                    <TableCell>
+                      <Badge variant={AFFILIATE_STATUS_VARIANT[affiliate.status]}>{affiliate.status}</Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <AffiliateStatusToggle id={affiliate.id} status={affiliate.status} />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

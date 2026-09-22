@@ -94,6 +94,7 @@ export default async function ProductsPage({
               <TableHead>Name</TableHead>
               <TableHead>Category</TableHead>
               <TableHead>Price</TableHead>
+              <TableHead>Stock</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -110,6 +111,13 @@ export default async function ProductsPage({
                   {product.categories?.name ?? "—"}
                 </TableCell>
                 <TableCell>{formatPrice(product.price)}</TableCell>
+                <TableCell>
+                  {product.stock_quantity === 0 ? (
+                    <Badge variant="destructive">Out of stock</Badge>
+                  ) : (
+                    product.stock_quantity
+                  )}
+                </TableCell>
                 <TableCell>
                   <Badge variant={STATUS_VARIANT[product.status]}>{product.status}</Badge>
                 </TableCell>

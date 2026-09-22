@@ -34,6 +34,7 @@ export function ProductForm({
   const [status, setStatus] = useState<"draft" | "active" | "disabled">(product?.status ?? "draft")
   const [categoryId, setCategoryId] = useState<string | null>(product?.category_id ?? null)
   const [netVolume, setNetVolume] = useState(product?.net_volume ?? "")
+  const [stockQuantity, setStockQuantity] = useState(product ? String(product.stock_quantity) : "0")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -50,6 +51,7 @@ export function ProductForm({
       status,
       categoryId,
       netVolume: netVolume || undefined,
+      stockQuantity: Number(stockQuantity),
     }
 
     const result = product
@@ -114,6 +116,22 @@ export function ProductForm({
             placeholder="Leave blank for no discount"
           />
         </div>
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="stockQuantity">Stock quantity</Label>
+        <Input
+          id="stockQuantity"
+          type="number"
+          min="0"
+          step="1"
+          value={stockQuantity}
+          onChange={(e) => setStockQuantity(e.target.value)}
+          required
+        />
+        <p className="text-xs text-muted-foreground">
+          Decreases automatically as orders come in; the storefront blocks checkout once it hits 0.
+        </p>
       </div>
 
       <div className="space-y-1.5">

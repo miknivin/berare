@@ -9,6 +9,8 @@ export function QuickAddButton({ product }: { product: ProductListItem }) {
   const [justAdded, setJustAdded] = useState(false)
   const addItem = useCartStore((state) => state.addItem)
 
+  if (product.stock_quantity <= 0) return null
+
   function handleClick(e: React.MouseEvent) {
     e.preventDefault()
     e.stopPropagation()

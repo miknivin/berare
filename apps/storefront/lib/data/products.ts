@@ -16,6 +16,7 @@ export type ProductListItem = {
   compare_at_price: number | null
   currency: string
   category_id: string | null
+  stock_quantity: number
   product_images: ProductImage[]
 }
 
@@ -33,9 +34,10 @@ export async function getProducts(filters: ProductFilters) {
 
   const baseQuery = supabase
     .from("products")
-    .select("id, name, slug, price, compare_at_price, currency, category_id, product_images(id, storage_path, position)", {
-      count: "exact",
-    })
+    .select(
+      "id, name, slug, price, compare_at_price, currency, category_id, stock_quantity, product_images(id, storage_path, position)",
+      { count: "exact" }
+    )
     .eq("status", "active")
 
   const { data, error, count } = await filters.apply(baseQuery, categories)
@@ -55,7 +57,7 @@ export async function getProductBySlug(slug: string): Promise<ProductDetail | nu
   const { data, error } = await supabase
     .from("products")
     .select(
-      "id, name, slug, description, price, compare_at_price, currency, category_id, net_volume, product_images(id, storage_path, position), categories(id, name, slug)"
+      "id, name, slug, description, price, compare_at_price, currency, category_id, net_volume, stock_quantity, product_images(id, storage_path, position), categories(id, name, slug)"
     )
     .eq("slug", slug)
     .eq("status", "active")
@@ -70,7 +72,7 @@ const BEST_SELLER_FALLBACK_COUNT = 5
 const DEFAULT_BEST_SELLER_THRESHOLD = 5
 
 const PRODUCT_LIST_SELECT =
-  "id, name, slug, price, compare_at_price, currency, category_id, product_images(id, storage_path, position)"
+  "id, name, slug, price, compare_at_price, currency, category_id, stock_quantity, product_images(id, storage_path, position)"
 
 // Products with more than BEST_SELLER_THRESHOLD confirmed/shipped/delivered
 // orders, ranked by order count. If nothing has crossed that bar yet (e.g.
@@ -142,7 +144,9 @@ export async function getRelatedProducts(categoryId: string | null, excludeProdu
 
   const { data, error } = await supabase
     .from("products")
-    .select("id, name, slug, price, compare_at_price, currency, category_id, product_images(id, storage_path, position)")
+    .select(
+      "id, name, slug, price, compare_at_price, currency, category_id, stock_quantity, product_images(id, storage_path, position)"
+    )
     .eq("status", "active")
     .in("category_id", categoryIds)
     .neq("id", excludeProductId)

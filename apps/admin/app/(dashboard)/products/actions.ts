@@ -18,6 +18,7 @@ const productInputSchema = z
     status: z.enum(["draft", "active", "disabled"]),
     categoryId: z.string().uuid().nullable(),
     netVolume: z.string().optional(),
+    stockQuantity: z.number().int().min(0, "Stock quantity can't be negative"),
   })
   .refine((data) => data.compareAtPrice == null || data.compareAtPrice > data.price, {
     message: "Original price must be greater than the current price",
@@ -48,6 +49,7 @@ export async function createProduct(input: z.infer<typeof productInputSchema>): 
       status: parsed.data.status,
       category_id: parsed.data.categoryId,
       net_volume: parsed.data.netVolume || null,
+      stock_quantity: parsed.data.stockQuantity,
     })
     .select("id")
     .single()
@@ -85,6 +87,7 @@ export async function updateProduct(
       status: parsed.data.status,
       category_id: parsed.data.categoryId,
       net_volume: parsed.data.netVolume || null,
+      stock_quantity: parsed.data.stockQuantity,
     })
     .eq("id", id)
 

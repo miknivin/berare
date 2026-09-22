@@ -13,6 +13,9 @@ export type OrderDetail = {
     city: string
     state: string
     pincode: string
+    // Optional — orders placed before the country selector was added won't
+    // have this.
+    country?: string
   }
   created_at: string
   order_items: {

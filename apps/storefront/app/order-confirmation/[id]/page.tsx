@@ -83,6 +83,7 @@ export default async function OrderConfirmationPage({
           {order.shipping_address.addressLine2 && <>, {order.shipping_address.addressLine2}</>}
           <br />
           {order.shipping_address.city}, {order.shipping_address.state} {order.shipping_address.pincode}
+          {order.shipping_address.country && <>, {order.shipping_address.country}</>}
           <br />
           {order.shipping_address.phone}
         </p>

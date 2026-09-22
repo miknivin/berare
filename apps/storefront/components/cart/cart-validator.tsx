@@ -43,8 +43,13 @@ export function CartValidator() {
               slug: truth.slug,
               price: truth.price,
               image: truth.image,
+              // Same "not trusted at checkout anyway" caveat as the rest of
+              // this reconciliation — clamped here purely so the cart page
+              // doesn't show a quantity the order API would reject outright.
+              quantity: Math.min(item.quantity, truth.stockQuantity),
             }
           })
+          .filter((item) => item.quantity > 0)
 
         useCartStore.getState().setItems(reconciled)
       })

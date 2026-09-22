@@ -20,6 +20,9 @@ export type OrderDetail = OrderListItem & {
     city: string
     state: string
     pincode: string
+    // Optional — orders placed before the country selector was added won't
+    // have this.
+    country?: string
   }
   razorpay_order_id: string | null
   razorpay_payment_id: string | null

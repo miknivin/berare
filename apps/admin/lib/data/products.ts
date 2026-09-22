@@ -11,6 +11,7 @@ export type ProductListItem = {
   price: number
   compare_at_price: number | null
   status: ProductStatus
+  stock_quantity: number
   categories: { id: string; name: string } | null
 }
 
@@ -31,6 +32,7 @@ export type ProductDetail = {
   status: ProductStatus
   category_id: string | null
   net_volume: string | null
+  stock_quantity: number
   images: ProductImage[]
 }
 
@@ -61,7 +63,9 @@ export async function getProducts(
 
   let query = supabase
     .from("products")
-    .select("id, name, slug, price, compare_at_price, status, categories(id, name)", { count: "exact" })
+    .select("id, name, slug, price, compare_at_price, status, stock_quantity, categories(id, name)", {
+      count: "exact",
+    })
 
   if (filters.search) query = query.ilike("name", `%${filters.search}%`)
   if (filters.status) query = query.eq("status", filters.status)
@@ -91,7 +95,7 @@ export async function getProductById(id: string): Promise<ProductDetail | null> 
   const { data, error } = await supabase
     .from("products")
     .select(
-      "id, name, slug, description, price, compare_at_price, status, category_id, net_volume, product_images(id, storage_path, position)"
+      "id, name, slug, description, price, compare_at_price, status, category_id, net_volume, stock_quantity, product_images(id, storage_path, position)"
     )
     .eq("id", id)
     .maybeSingle()
