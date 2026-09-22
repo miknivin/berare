@@ -390,10 +390,12 @@ export type Database = {
       }
       orders: {
         Row: {
+          additional_charge: number
           affiliate_ref_code: string | null
           created_at: string
           customer_id: string
           delivered_at: string | null
+          discount_amount: number
           id: string
           payment_method: string
           razorpay_order_id: string | null
@@ -404,10 +406,12 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          additional_charge?: number
           affiliate_ref_code?: string | null
           created_at?: string
           customer_id: string
           delivered_at?: string | null
+          discount_amount?: number
           id?: string
           payment_method?: string
           razorpay_order_id?: string | null
@@ -418,10 +422,12 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          additional_charge?: number
           affiliate_ref_code?: string | null
           created_at?: string
           customer_id?: string
           delivered_at?: string | null
+          discount_amount?: number
           id?: string
           payment_method?: string
           razorpay_order_id?: string | null

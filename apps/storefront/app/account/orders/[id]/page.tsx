@@ -1,9 +1,11 @@
 import { notFound } from "next/navigation"
 import Link from "next/link"
+import Image from "next/image"
 import type { Metadata } from "next"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Sparkles } from "lucide-react"
 import { getOrderById } from "@/lib/data/orders"
 import { formatPrice } from "@/lib/format"
+import { getProductImageUrl } from "@/lib/image"
 import { ORDER_STATUS_LABEL, ORDER_STATUS_CLASS } from "@/lib/order-status"
 import { isWithinReturnWindow } from "@/lib/data/returns"
 
@@ -51,18 +53,50 @@ export default async function AccountOrderDetailPage({
       <div className="rounded-xl border border-border p-6 mb-6">
         <h2 className="text-sm font-medium mb-4">Items</h2>
         <ul className="space-y-3">
-          {order.order_items.map((item) => (
-            <li key={item.id} className="flex justify-between text-sm">
-              <span className="text-muted-foreground">
-                {item.products?.name ?? "Product"} × {item.quantity}
-              </span>
-              <span>{formatPrice(item.unit_price * item.quantity)}</span>
-            </li>
-          ))}
+          {order.order_items.map((item) => {
+            const image = [...(item.products?.product_images ?? [])].sort((a, b) => a.position - b.position)[0]
+            return (
+              <li key={item.id} className="flex items-center gap-3 text-sm">
+                <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-muted shrink-0">
+                  {image ? (
+                    <Image
+                      src={getProductImageUrl(image.storage_path)}
+                      alt=""
+                      fill
+                      className="object-cover"
+                      sizes="48px"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                      <Sparkles className="w-4 h-4 opacity-40" aria-hidden="true" />
+                    </div>
+                  )}
+                </div>
+                <span className="text-muted-foreground flex-1 min-w-0">
+                  {item.products?.name ?? "Product"} × {item.quantity}
+                </span>
+                <span className="shrink-0">{formatPrice(item.unit_price * item.quantity)}</span>
+              </li>
+            )
+          })}
         </ul>
-        <div className="border-t border-border mt-4 pt-4 flex justify-between text-sm font-medium">
-          <span>Total</span>
-          <span>{formatPrice(order.total_amount)}</span>
+        <div className="border-t border-border mt-4 pt-4 space-y-1.5">
+          {order.discount_amount > 0 && (
+            <div className="flex justify-between text-sm text-green-700">
+              <span>Prepaid discount</span>
+              <span>−{formatPrice(order.discount_amount)}</span>
+            </div>
+          )}
+          {order.additional_charge > 0 && (
+            <div className="flex justify-between text-sm text-muted-foreground">
+              <span>COD charge</span>
+              <span>{formatPrice(order.additional_charge)}</span>
+            </div>
+          )}
+          <div className="flex justify-between text-sm font-medium">
+            <span>Total</span>
+            <span>{formatPrice(order.total_amount)}</span>
+          </div>
         </div>
       </div>
 

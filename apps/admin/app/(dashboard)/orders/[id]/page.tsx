@@ -1,8 +1,12 @@
 import { notFound } from "next/navigation"
+import Link from "next/link"
+import Image from "next/image"
 import type { Metadata } from "next"
+import { ArrowLeft, Sparkles } from "lucide-react"
 import { requireStaff } from "@/lib/auth"
 import { getOrderById } from "@/lib/data/orders"
 import { formatPrice } from "@/lib/format"
+import { getPublicUrl } from "@/lib/s3"
 import { OrderStatusSelect } from "@/components/orders/order-status-select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
@@ -20,9 +24,17 @@ export default async function OrderDetailPage({
 
   return (
     <div className="max-w-3xl">
+      <Link
+        href="/orders"
+        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-4"
+      >
+        <ArrowLeft className="w-4 h-4" aria-hidden="true" />
+        Back to Orders
+      </Link>
+
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h1 className="text-xl font-semibold font-mono">{order.id}</h1>
+          <h1 className="text-xl font-semibold font-mono">{order.id.slice(0, 8)}</h1>
           <p className="text-sm text-muted-foreground mt-1">
             Placed{" "}
             {new Date(order.created_at).toLocaleString("en-IN", {
@@ -87,19 +99,51 @@ export default async function OrderDetailPage({
           <CardTitle>Items</CardTitle>
         </CardHeader>
         <CardContent>
-          <ul className="space-y-2 text-sm">
-            {order.order_items.map((item) => (
-              <li key={item.id} className="flex justify-between">
-                <span>
-                  {item.products?.name ?? "Product"} × {item.quantity}
-                </span>
-                <span>{formatPrice(item.unit_price * item.quantity)}</span>
-              </li>
-            ))}
+          <ul className="space-y-3 text-sm">
+            {order.order_items.map((item) => {
+              const image = [...(item.products?.product_images ?? [])].sort((a, b) => a.position - b.position)[0]
+              return (
+                <li key={item.id} className="flex items-center gap-3">
+                  <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-muted shrink-0">
+                    {image ? (
+                      <Image
+                        src={getPublicUrl(image.storage_path)}
+                        alt=""
+                        fill
+                        className="object-cover"
+                        sizes="48px"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                        <Sparkles className="w-4 h-4 opacity-40" aria-hidden="true" />
+                      </div>
+                    )}
+                  </div>
+                  <span className="flex-1 min-w-0">
+                    {item.products?.name ?? "Product"} × {item.quantity}
+                  </span>
+                  <span className="shrink-0">{formatPrice(item.unit_price * item.quantity)}</span>
+                </li>
+              )
+            })}
           </ul>
-          <div className="border-t mt-4 pt-4 flex justify-between text-sm font-medium">
-            <span>Total</span>
-            <span>{formatPrice(order.total_amount)}</span>
+          <div className="border-t mt-4 pt-4 space-y-1.5">
+            {order.discount_amount > 0 && (
+              <div className="flex justify-between text-sm text-green-700">
+                <span>Prepaid discount</span>
+                <span>−{formatPrice(order.discount_amount)}</span>
+              </div>
+            )}
+            {order.additional_charge > 0 && (
+              <div className="flex justify-between text-sm text-muted-foreground">
+                <span>COD charge</span>
+                <span>{formatPrice(order.additional_charge)}</span>
+              </div>
+            )}
+            <div className="flex justify-between text-sm font-medium">
+              <span>Total</span>
+              <span>{formatPrice(order.total_amount)}</span>
+            </div>
           </div>
         </CardContent>
       </Card>

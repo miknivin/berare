@@ -2,11 +2,14 @@
 
 import { useEffect, useMemo, useState, type FormEvent } from "react"
 import { useRouter } from "next/navigation"
-import { Banknote, CreditCard } from "lucide-react"
+import Image from "next/image"
+import { Banknote, CreditCard, Sparkles } from "lucide-react"
 import { Country, State } from "country-state-city"
 import { useCartStore, useCartSubtotal } from "@/lib/store/cart"
 import { formatPrice } from "@/lib/format"
 import { loadRazorpayScript } from "@/lib/load-razorpay-script"
+import { getProductImageUrl } from "@/lib/image"
+import { calculateOrderTotals, type PricingConfig } from "@/lib/pricing"
 
 // Internal-only form state: `countryCode`/state are ISO codes used to look
 // up the states list and dial code. Submitted to the API as plain names
@@ -46,7 +49,13 @@ function dialCodeFor(countryCode: string): string {
   return phonecode.startsWith("+") ? phonecode : `+${phonecode}`
 }
 
-export function CheckoutForm({ userEmail }: { userEmail: string }) {
+export function CheckoutForm({
+  userEmail,
+  pricingConfig,
+}: {
+  userEmail: string
+  pricingConfig: PricingConfig
+}) {
   const router = useRouter()
   const items = useCartStore((state) => state.items)
   const clearCart = useCartStore((state) => state.clearCart)
@@ -59,6 +68,12 @@ export function CheckoutForm({ userEmail }: { userEmail: string }) {
 
   const states = useMemo(() => State.getStatesOfCountry(address.countryCode), [address.countryCode])
   const dialCode = useMemo(() => dialCodeFor(address.countryCode), [address.countryCode])
+  // Client-side preview only — /api/orders recomputes this from scratch
+  // server-side and is what actually determines what gets charged.
+  const totals = useMemo(
+    () => calculateOrderTotals(subtotal, paymentMethod, pricingConfig),
+    [subtotal, paymentMethod, pricingConfig]
+  )
 
   useEffect(() => {
     if (items.length === 0) {
@@ -270,8 +285,8 @@ export function CheckoutForm({ userEmail }: { userEmail: string }) {
           {isSubmitting
             ? "Processing…"
             : paymentMethod === "cod"
-              ? `Place Order — ${formatPrice(subtotal)}`
-              : `Pay ${formatPrice(subtotal)}`}
+              ? `Place Order — ${formatPrice(totals.total)}`
+              : `Pay ${formatPrice(totals.total)}`}
         </button>
 
         {error && (
@@ -283,19 +298,52 @@ export function CheckoutForm({ userEmail }: { userEmail: string }) {
 
       <div className="h-fit rounded-xl border border-border p-6">
         <h2 className="text-sm font-medium mb-4">Order Summary</h2>
-        <ul className="space-y-2 mb-4">
+        <ul className="space-y-3 mb-4">
           {items.map((item) => (
-            <li key={item.productId} className="flex justify-between text-sm">
-              <span className="text-muted-foreground">
+            <li key={item.productId} className="flex items-center gap-3 text-sm">
+              <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-muted shrink-0">
+                {item.image ? (
+                  <Image
+                    src={getProductImageUrl(item.image)}
+                    alt=""
+                    fill
+                    className="object-cover"
+                    sizes="48px"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                    <Sparkles className="w-4 h-4 opacity-40" aria-hidden="true" />
+                  </div>
+                )}
+              </div>
+              <span className="text-muted-foreground flex-1 min-w-0">
                 {item.name} × {item.quantity}
               </span>
-              <span>{formatPrice(item.price * item.quantity)}</span>
+              <span className="shrink-0">{formatPrice(item.price * item.quantity)}</span>
             </li>
           ))}
         </ul>
-        <div className="border-t border-border pt-4 flex justify-between text-sm font-medium">
-          <span>Total</span>
-          <span>{formatPrice(subtotal)}</span>
+        <div className="border-t border-border pt-4 space-y-1.5">
+          <div className="flex justify-between text-sm text-muted-foreground">
+            <span>Subtotal</span>
+            <span>{formatPrice(totals.subtotal)}</span>
+          </div>
+          {totals.discount > 0 && (
+            <div className="flex justify-between text-sm text-green-700">
+              <span>Prepaid discount</span>
+              <span>−{formatPrice(totals.discount)}</span>
+            </div>
+          )}
+          {totals.additionalCharge > 0 && (
+            <div className="flex justify-between text-sm text-muted-foreground">
+              <span>COD charge</span>
+              <span>{formatPrice(totals.additionalCharge)}</span>
+            </div>
+          )}
+          <div className="flex justify-between text-sm font-medium pt-1.5 border-t border-border">
+            <span>Total</span>
+            <span>{formatPrice(totals.total)}</span>
+          </div>
         </div>
       </div>
     </div>

@@ -1,30 +1,23 @@
 "use client"
 
 import { useState, type FormEvent } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { updateAffiliateSettings } from "@/app/(dashboard)/affiliates/settings-actions"
-import type { AffiliateSettings } from "@/lib/data/affiliate-settings"
+import { toast } from "@/components/ui/toast"
+import { updateAffiliateSettings } from "@/app/(dashboard)/settings/actions"
+import type { AffiliateSettings } from "@/lib/data/settings"
 
-export function AffiliateSettingsForm({
-  settings,
-  onSuccess,
-  onCancel,
-}: {
-  settings: AffiliateSettings
-  onSuccess: () => void
-  onCancel: () => void
-}) {
+export function AffiliateSettingsForm({ settings }: { settings: AffiliateSettings }) {
+  const router = useRouter()
   const [pointsPerClick, setPointsPerClick] = useState(String(settings.pointsPerClick))
   const [commissionRatePercent, setCommissionRatePercent] = useState(String(settings.commissionRatePercent))
   const [pointsToInrRate, setPointsToInrRate] = useState(String(settings.pointsToInrRate))
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    setError(null)
     setIsSubmitting(true)
     const result = await updateAffiliateSettings({
       pointsPerClick: Number(pointsPerClick),
@@ -33,10 +26,11 @@ export function AffiliateSettingsForm({
     })
     setIsSubmitting(false)
     if (!result.success) {
-      setError(result.error)
+      toast.error("Could not save affiliate settings", result.error)
       return
     }
-    onSuccess()
+    toast.success("Affiliate settings saved")
+    router.refresh()
   }
 
   return (
@@ -88,20 +82,9 @@ export function AffiliateSettingsForm({
         <p className="text-xs text-muted-foreground">Used to convert an affiliate&apos;s points into a payout amount.</p>
       </div>
 
-      {error && (
-        <p className="text-sm text-destructive" role="alert">
-          {error}
-        </p>
-      )}
-
-      <div className="flex justify-end gap-2 pt-2">
-        <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
-          Cancel
-        </Button>
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Saving…" : "Save Settings"}
-        </Button>
-      </div>
+      <Button type="submit" disabled={isSubmitting}>
+        {isSubmitting ? "Saving…" : "Save Affiliate Settings"}
+      </Button>
     </form>
   )
 }

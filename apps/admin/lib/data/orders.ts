@@ -20,6 +20,8 @@ export type OrderListItem = {
 }
 
 export type OrderDetail = OrderListItem & {
+  discount_amount: number
+  additional_charge: number
   shipping_address: {
     fullName: string
     phone: string
@@ -38,7 +40,11 @@ export type OrderDetail = OrderListItem & {
     id: string
     quantity: number
     unit_price: number
-    products: { name: string; slug: string } | null
+    products: {
+      name: string
+      slug: string
+      product_images: { storage_path: string; position: number }[]
+    } | null
   }[]
 }
 
@@ -70,7 +76,7 @@ export async function getOrderById(id: string): Promise<OrderDetail | null> {
   const { data, error } = await supabase
     .from("orders")
     .select(
-      "id, status, payment_method, total_amount, created_at, shipping_address, razorpay_order_id, razorpay_payment_id, profiles(email, full_name), order_items(id, quantity, unit_price, products(name, slug))"
+      "id, status, payment_method, total_amount, discount_amount, additional_charge, created_at, shipping_address, razorpay_order_id, razorpay_payment_id, profiles(email, full_name), order_items(id, quantity, unit_price, products(name, slug, product_images(storage_path, position)))"
     )
     .eq("id", id)
     .maybeSingle()

@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, Package, ShoppingCart, Image as ImageIcon, Tags, Users, UsersRound, Star, MessageSquareQuote, Inbox, Banknote, RotateCcw } from "lucide-react"
+import { LayoutDashboard, Package, ShoppingCart, Image as ImageIcon, Tags, Users, UsersRound, Star, MessageSquareQuote, Inbox, Banknote, RotateCcw, Settings } from "lucide-react"
 import { useMobileSidebar } from "./mobile-sidebar-context"
 
 const NAV_ITEMS = [
@@ -18,6 +18,7 @@ const NAV_ITEMS = [
   { href: "/withdrawals", label: "Withdrawals", icon: Banknote },
   { href: "/reviews", label: "Reviews", icon: Star },
   { href: "/testimonials", label: "Testimonials", icon: MessageSquareQuote },
+  { href: "/settings", label: "Settings", icon: Settings },
 ]
 
 export function SidebarNav() {

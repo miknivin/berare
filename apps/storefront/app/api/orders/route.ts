@@ -4,6 +4,8 @@ import { cookies } from "next/headers"
 import { createServerSupabaseClient } from "@berare/db/server"
 import { getRazorpayClient } from "@/lib/razorpay"
 import { AFFILIATE_REF_COOKIE_NAME } from "@berare/shared"
+import { getPricingConfig } from "@/lib/data/pricing-config"
+import { calculateOrderTotals } from "@/lib/pricing"
 
 const orderRequestSchema = z.object({
   items: z
@@ -81,10 +83,16 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  const totalAmount = items.reduce((sum, item) => {
+  const subtotal = items.reduce((sum, item) => {
     const product = productById.get(item.productId)!
     return sum + product.price * item.quantity
   }, 0)
+
+  // Authoritative — never trusts whatever the client's own preview showed,
+  // same principle as re-fetching prices above.
+  const pricingConfig = await getPricingConfig()
+  const totals = calculateOrderTotals(subtotal, paymentMethod, pricingConfig)
+  const totalAmount = totals.total
 
   const cookieStore = await cookies()
   const affiliateRefCode = cookieStore.get(AFFILIATE_REF_COOKIE_NAME)?.value ?? null
@@ -113,6 +121,8 @@ export async function POST(request: NextRequest) {
       // COD has no payment gateway step, so it's confirmed immediately.
       status: paymentMethod === "cod" ? "confirmed" : "pending",
       total_amount: totalAmount,
+      discount_amount: totals.discount,
+      additional_charge: totals.additionalCharge,
       shipping_address: shippingAddress,
       affiliate_ref_code: affiliateRefCode,
       payment_method: paymentMethod,

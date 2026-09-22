@@ -1,7 +1,6 @@
 import type { Metadata } from "next"
 import { requireStaff } from "@/lib/auth"
 import { getAffiliateApplications, getAffiliates } from "@/lib/data/affiliates"
-import { getAffiliateSettings } from "@/lib/data/affiliate-settings"
 import { Badge } from "@/components/ui/badge"
 import {
   Table,
@@ -13,7 +12,6 @@ import {
 } from "@/components/ui/table"
 import { ApplicationActions } from "@/components/affiliates/application-actions"
 import { AffiliateStatusToggle } from "@/components/affiliates/affiliate-status-toggle"
-import { AffiliateSettingsDialog } from "@/components/affiliates/affiliate-settings-dialog"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 
 export const metadata: Metadata = { title: "Affiliates" }
@@ -36,24 +34,17 @@ function formatDate(value: string) {
 
 export default async function AffiliatesPage() {
   await requireStaff()
-  const [applications, affiliates, settings] = await Promise.all([
-    getAffiliateApplications(),
-    getAffiliates(),
-    getAffiliateSettings(),
-  ])
+  const [applications, affiliates] = await Promise.all([getAffiliateApplications(), getAffiliates()])
 
   const pendingCount = applications.filter((a) => a.status === "pending").length
 
   return (
     <div className="space-y-10">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-semibold">Affiliates</h1>
-          <p className="text-sm text-muted-foreground">
-            {affiliates.length} active affiliates &middot; {pendingCount} pending applications
-          </p>
-        </div>
-        <AffiliateSettingsDialog settings={settings} />
+      <div>
+        <h1 className="text-xl font-semibold">Affiliates</h1>
+        <p className="text-sm text-muted-foreground">
+          {affiliates.length} active affiliates &middot; {pendingCount} pending applications
+        </p>
       </div>
 
       <Tabs defaultValue="requests">
