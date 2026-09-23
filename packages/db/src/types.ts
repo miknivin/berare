@@ -582,6 +582,7 @@ export type Database = {
           currency: string
           description: string | null
           id: string
+          key_features: string[]
           name: string
           net_volume: string | null
           price: number
@@ -597,6 +598,7 @@ export type Database = {
           currency?: string
           description?: string | null
           id?: string
+          key_features?: string[]
           name: string
           net_volume?: string | null
           price: number
@@ -612,6 +614,7 @@ export type Database = {
           currency?: string
           description?: string | null
           id?: string
+          key_features?: string[]
           name?: string
           net_volume?: string | null
           price?: number

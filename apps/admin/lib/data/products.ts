@@ -32,6 +32,7 @@ export type ProductDetail = {
   status: ProductStatus
   category_id: string | null
   net_volume: string | null
+  key_features: string[]
   stock_quantity: number
   images: ProductImage[]
 }
@@ -95,7 +96,7 @@ export async function getProductById(id: string): Promise<ProductDetail | null> 
   const { data, error } = await supabase
     .from("products")
     .select(
-      "id, name, slug, description, price, compare_at_price, status, category_id, net_volume, stock_quantity, product_images(id, storage_path, position)"
+      "id, name, slug, description, price, compare_at_price, status, category_id, net_volume, key_features, stock_quantity, product_images(id, storage_path, position)"
     )
     .eq("id", id)
     .maybeSingle()

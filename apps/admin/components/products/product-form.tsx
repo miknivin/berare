@@ -16,6 +16,7 @@ import {
 import { createProduct, updateProduct } from "@/app/(dashboard)/products/actions"
 import type { Category } from "@/lib/data/categories"
 import type { ProductDetail } from "@/lib/data/products"
+import { KeyFeaturesInput } from "./key-features-input"
 
 export function ProductForm({
   categories,
@@ -34,6 +35,7 @@ export function ProductForm({
   const [status, setStatus] = useState<"draft" | "active" | "disabled">(product?.status ?? "draft")
   const [categoryId, setCategoryId] = useState<string | null>(product?.category_id ?? null)
   const [netVolume, setNetVolume] = useState(product?.net_volume ?? "")
+  const [keyFeatures, setKeyFeatures] = useState<string[]>(product?.key_features ?? [])
   const [stockQuantity, setStockQuantity] = useState(product ? String(product.stock_quantity) : "0")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -52,6 +54,7 @@ export function ProductForm({
       categoryId,
       netVolume: netVolume || undefined,
       stockQuantity: Number(stockQuantity),
+      keyFeatures,
     }
 
     const result = product
@@ -86,6 +89,16 @@ export function ProductForm({
           onChange={(e) => setDescription(e.target.value)}
           rows={4}
         />
+      </div>
+
+      <div className="space-y-1.5">
+        <Label>
+          Key features <span className="text-muted-foreground font-normal">(optional)</span>
+        </Label>
+        <KeyFeaturesInput value={keyFeatures} onChange={setKeyFeatures} />
+        <p className="text-xs text-muted-foreground">
+          Short, eye-catching highlights shown above the description on the product page.
+        </p>
       </div>
 
       <div className="grid grid-cols-2 gap-4">

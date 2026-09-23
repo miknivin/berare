@@ -6,6 +6,7 @@ import { requireStaff } from "@/lib/auth"
 import { createServiceRoleClient } from "@berare/db/service-role"
 import { slugify } from "@/lib/slugify"
 import { createPresignedUploadUrl, deleteS3Object } from "@/lib/s3"
+import { MAX_KEY_FEATURES, MAX_WORDS_PER_KEY_FEATURE } from "@/lib/key-features"
 
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"]
 
@@ -19,6 +20,13 @@ const productInputSchema = z
     categoryId: z.string().uuid().nullable(),
     netVolume: z.string().optional(),
     stockQuantity: z.number().int().min(0, "Stock quantity can't be negative"),
+    keyFeatures: z
+      .array(z.string().trim().min(1))
+      .max(MAX_KEY_FEATURES, `Up to ${MAX_KEY_FEATURES} key features allowed`)
+      .refine((features) => features.every((f) => f.split(/\s+/).length <= MAX_WORDS_PER_KEY_FEATURE), {
+        message: `Each key feature must be ${MAX_WORDS_PER_KEY_FEATURE} words or fewer`,
+      })
+      .default([]),
   })
   .refine((data) => data.compareAtPrice == null || data.compareAtPrice > data.price, {
     message: "Original price must be greater than the current price",
@@ -49,6 +57,7 @@ export async function createProduct(input: z.infer<typeof productInputSchema>): 
       status: parsed.data.status,
       category_id: parsed.data.categoryId,
       net_volume: parsed.data.netVolume || null,
+      key_features: parsed.data.keyFeatures,
       stock_quantity: parsed.data.stockQuantity,
     })
     .select("id")
@@ -113,6 +122,7 @@ export async function updateProduct(
       status: parsed.data.status,
       category_id: parsed.data.categoryId,
       net_volume: parsed.data.netVolume || null,
+      key_features: parsed.data.keyFeatures,
       stock_quantity: parsed.data.stockQuantity,
     })
     .eq("id", id)

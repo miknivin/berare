@@ -2,7 +2,7 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import { Suspense } from "react"
 import type { Metadata } from "next"
-import { ShieldCheck, Truck } from "lucide-react"
+import { Check, ShieldCheck, Truck } from "lucide-react"
 import { getProductBySlug, getRelatedProducts } from "@/lib/data/products"
 import { ProductGallery } from "@/components/product/product-gallery"
 import { ProductGrid } from "@/components/product/product-grid"
@@ -101,6 +101,20 @@ export default async function ProductPage({
               <span className="text-sm text-muted-foreground">({product.net_volume})</span>
             )}
           </div>
+
+          {product.key_features.length > 0 && (
+            <ul className="mt-6 flex flex-wrap gap-2">
+              {product.key_features.map((feature) => (
+                <li
+                  key={feature}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary"
+                >
+                  <Check className="w-3 h-3" aria-hidden="true" />
+                  {feature}
+                </li>
+              ))}
+            </ul>
+          )}
 
           {product.description && (
             <p className="mt-6 text-sm text-muted-foreground leading-relaxed">
