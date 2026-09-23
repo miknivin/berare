@@ -6,4 +6,5 @@
 //   import { createBrowserClient } from "@berare/db/browser"
 //   import { createServerSupabaseClient } from "@berare/db/server"
 //   import { createServiceRoleClient } from "@berare/db/service-role"
+//   import { createPublicSupabaseClient } from "@berare/db/public"
 export type { Database } from "./types"

@@ -8,6 +8,7 @@
     ".": "./src/index.ts",
     "./browser": "./src/browser.ts",
     "./server": "./src/server.ts",
+    "./public": "./src/public.ts",
     "./service-role": "./src/service-role.ts",
     "./proxy": "./src/proxy.ts",
     "./types": "./src/types.ts"
