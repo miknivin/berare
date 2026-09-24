@@ -20,6 +20,7 @@ import {
   getCategoryImageUploadUrl,
 } from "@/app/(dashboard)/categories/actions"
 import { getS3Url } from "@/lib/image"
+import { validateImageFile } from "@/lib/validate-image-file"
 import type { Category } from "@/lib/data/categories"
 
 export function CategoryForm({
@@ -53,6 +54,13 @@ export function CategoryForm({
     if (!file) return
 
     setError(null)
+
+    const validation = await validateImageFile(file)
+    if (!validation.ok) {
+      setError(validation.error)
+      return
+    }
+
     setIsUploading(true)
 
     try {

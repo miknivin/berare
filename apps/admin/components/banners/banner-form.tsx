@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { createBanner, updateBanner, getBannerUploadUrl } from "@/app/(dashboard)/banners/actions"
 import { getS3Url } from "@/lib/image"
+import { validateImageFile } from "@/lib/validate-image-file"
 import type { HeroBanner } from "@/lib/data/hero-banners"
 
 export function BannerForm({
@@ -40,6 +41,13 @@ export function BannerForm({
     if (!file) return
 
     setError(null)
+
+    const validation = await validateImageFile(file)
+    if (!validation.ok) {
+      setError(validation.error)
+      return
+    }
+
     setIsUploading(true)
 
     try {

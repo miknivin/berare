@@ -14,6 +14,7 @@ import {
   addProductImage,
   deleteProductImage,
 } from "@/app/(dashboard)/products/actions"
+import { validateImageFile, type ImageValidationResult } from "@/lib/validate-image-file"
 import type { ProductImage } from "@/lib/data/products"
 
 export function ProductImagesManager({
@@ -44,13 +45,25 @@ export function ProductImagesManager({
   }
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(e.target.files ?? [])
+    const selected = Array.from(e.target.files ?? [])
     e.target.value = "" // allow re-selecting the same file(s) later
-    if (files.length === 0) return
+    if (selected.length === 0) return
 
     setIsUploading(true)
 
     try {
+      const validations = await Promise.all(selected.map((file) => validateImageFile(file)))
+      const files = selected.filter((_, i) => validations[i].ok)
+      const rejected = validations.filter((v) => !v.ok) as Extract<ImageValidationResult, { ok: false }>[]
+
+      if (rejected.length > 0) {
+        toast.error(
+          rejected.length === 1 ? "1 image skipped" : `${rejected.length} images skipped`,
+          rejected[0].error
+        )
+      }
+      if (files.length === 0) return
+
       // Positions are handed out up front from the list already in hand,
       // not re-queried per file — see the comment on addProductImage for
       // why that matters once these run concurrently.
