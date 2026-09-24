@@ -18,6 +18,16 @@ const s3Host = getS3HostConfig();
 
 const nextConfig: NextConfig = {
   transpilePackages: ["@berare/db", "@berare/shared"],
+  // Dynamic routes default to a 0s client Router Cache — every navigation
+  // (including back/forward to a page you just left) refetches from the
+  // server and re-shows loading.tsx. This keeps the last render around for
+  // 30s so normal browsing doesn't retrigger it; unstable_cache's own tags
+  // still make sure a genuinely changed page shows fresh data on demand.
+  experimental: {
+    staleTimes: {
+      dynamic: 30,
+    },
+  },
   images: {
     remotePatterns: s3Host
       ? [
