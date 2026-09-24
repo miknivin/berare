@@ -21,10 +21,24 @@ export type ProductListItem = {
   product_images: ProductImage[]
 }
 
+export type ProductFaq = {
+  question: string
+  answer: string
+}
+
 export type ProductDetail = ProductListItem & {
   description: string | null
   net_volume: string | null
   key_features: string[]
+  benefits: string[]
+  skin_types: string[]
+  key_ingredients: string[]
+  what_it_is: string | null
+  what_it_does: string | null
+  how_it_works: string | null
+  full_ingredients: string | null
+  directions_to_use: string | null
+  faqs: ProductFaq[]
   categories: { id: string; name: string; slug: string } | null
 }
 
@@ -76,7 +90,7 @@ export const getProductBySlug = unstable_cache(
     const { data, error } = await supabase
       .from("products")
       .select(
-        "id, name, slug, description, price, compare_at_price, currency, category_id, net_volume, key_features, stock_quantity, product_images(id, storage_path, position), categories(id, name, slug)"
+        "id, name, slug, description, price, compare_at_price, currency, category_id, net_volume, key_features, benefits, skin_types, key_ingredients, what_it_is, what_it_does, how_it_works, full_ingredients, directions_to_use, faqs, stock_quantity, product_images(id, storage_path, position), categories(id, name, slug)"
       )
       .eq("slug", slug)
       .eq("status", "active")

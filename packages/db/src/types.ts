@@ -576,52 +576,79 @@ export type Database = {
       }
       products: {
         Row: {
+          benefits: string[]
           category_id: string | null
           compare_at_price: number | null
           created_at: string
           currency: string
           description: string | null
+          directions_to_use: string | null
+          faqs: Json
+          full_ingredients: string | null
+          how_it_works: string | null
           id: string
           key_features: string[]
+          key_ingredients: string[]
           name: string
           net_volume: string | null
           price: number
+          skin_types: string[]
           slug: string
           status: string
           stock_quantity: number
           updated_at: string
+          what_it_does: string | null
+          what_it_is: string | null
         }
         Insert: {
+          benefits?: string[]
           category_id?: string | null
           compare_at_price?: number | null
           created_at?: string
           currency?: string
           description?: string | null
+          directions_to_use?: string | null
+          faqs?: Json
+          full_ingredients?: string | null
+          how_it_works?: string | null
           id?: string
           key_features?: string[]
+          key_ingredients?: string[]
           name: string
           net_volume?: string | null
           price: number
+          skin_types?: string[]
           slug: string
           status?: string
           stock_quantity?: number
           updated_at?: string
+          what_it_does?: string | null
+          what_it_is?: string | null
         }
         Update: {
+          benefits?: string[]
           category_id?: string | null
           compare_at_price?: number | null
           created_at?: string
           currency?: string
           description?: string | null
+          directions_to_use?: string | null
+          faqs?: Json
+          full_ingredients?: string | null
+          how_it_works?: string | null
           id?: string
           key_features?: string[]
+          key_ingredients?: string[]
           name?: string
           net_volume?: string | null
           price?: number
+          skin_types?: string[]
           slug?: string
           status?: string
           stock_quantity?: number
           updated_at?: string
+          what_it_does?: string | null
+          what_it_is?: string | null
         }
         Relationships: [
           {

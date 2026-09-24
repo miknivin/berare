@@ -7,6 +7,7 @@ import { createServiceRoleClient } from "@berare/db/service-role"
 import { slugify } from "@/lib/slugify"
 import { createPresignedUploadUrl, deleteS3Object } from "@/lib/s3"
 import { MAX_KEY_FEATURES, MAX_WORDS_PER_KEY_FEATURE } from "@/lib/key-features"
+import { CHIP_LIST_LIMITS } from "@/lib/chip-list-limits"
 
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"]
 
@@ -26,6 +27,32 @@ const productInputSchema = z
       .refine((features) => features.every((f) => f.split(/\s+/).length <= MAX_WORDS_PER_KEY_FEATURE), {
         message: `Each key feature must be ${MAX_WORDS_PER_KEY_FEATURE} words or fewer`,
       })
+      .default([]),
+    benefits: z
+      .array(z.string().trim().min(1))
+      .max(CHIP_LIST_LIMITS.benefits.maxItems)
+      .default([]),
+    skinTypes: z
+      .array(z.string().trim().min(1))
+      .max(CHIP_LIST_LIMITS.skinTypes.maxItems)
+      .default([]),
+    keyIngredients: z
+      .array(z.string().trim().min(1))
+      .max(CHIP_LIST_LIMITS.keyIngredients.maxItems)
+      .default([]),
+    whatItIs: z.string().max(2000).optional(),
+    whatItDoes: z.string().max(2000).optional(),
+    howItWorks: z.string().max(2000).optional(),
+    fullIngredients: z.string().max(5000).optional(),
+    directionsToUse: z.string().max(2000).optional(),
+    faqs: z
+      .array(
+        z.object({
+          question: z.string().trim().min(1),
+          answer: z.string().trim().min(1),
+        })
+      )
+      .max(15, "Up to 15 questions allowed")
       .default([]),
   })
   .refine((data) => data.compareAtPrice == null || data.compareAtPrice > data.price, {
@@ -58,6 +85,15 @@ export async function createProduct(input: z.infer<typeof productInputSchema>): 
       category_id: parsed.data.categoryId,
       net_volume: parsed.data.netVolume || null,
       key_features: parsed.data.keyFeatures,
+      benefits: parsed.data.benefits,
+      skin_types: parsed.data.skinTypes,
+      key_ingredients: parsed.data.keyIngredients,
+      what_it_is: parsed.data.whatItIs || null,
+      what_it_does: parsed.data.whatItDoes || null,
+      how_it_works: parsed.data.howItWorks || null,
+      full_ingredients: parsed.data.fullIngredients || null,
+      directions_to_use: parsed.data.directionsToUse || null,
+      faqs: parsed.data.faqs,
       stock_quantity: parsed.data.stockQuantity,
     })
     .select("id")
@@ -123,6 +159,15 @@ export async function updateProduct(
       category_id: parsed.data.categoryId,
       net_volume: parsed.data.netVolume || null,
       key_features: parsed.data.keyFeatures,
+      benefits: parsed.data.benefits,
+      skin_types: parsed.data.skinTypes,
+      key_ingredients: parsed.data.keyIngredients,
+      what_it_is: parsed.data.whatItIs || null,
+      what_it_does: parsed.data.whatItDoes || null,
+      how_it_works: parsed.data.howItWorks || null,
+      full_ingredients: parsed.data.fullIngredients || null,
+      directions_to_use: parsed.data.directionsToUse || null,
+      faqs: parsed.data.faqs,
       stock_quantity: parsed.data.stockQuantity,
     })
     .eq("id", id)

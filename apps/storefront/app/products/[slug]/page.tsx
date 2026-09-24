@@ -10,6 +10,8 @@ import { AddToCartButton } from "@/components/product/add-to-cart-button"
 import { PriceDisplay } from "@/components/product/price-display"
 import { WishlistButton } from "@/components/product/wishlist-button"
 import { ShareButton } from "@/components/product/share-button"
+import { ProductHighlights } from "@/components/product/product-highlights"
+import { ProductExtendedInfo } from "@/components/product/product-extended-info"
 import { ReviewsSection } from "@/components/reviews/reviews-section"
 
 export async function generateMetadata({
@@ -50,7 +52,7 @@ export default async function ProductPage({
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 md:px-6 py-8 md:py-12">
+    <div className="mx-auto max-w-350 px-4 md:px-6 py-8 md:py-12">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -116,6 +118,12 @@ export default async function ProductPage({
             </ul>
           )}
 
+          <ProductHighlights
+            benefits={product.benefits}
+            skinTypes={product.skin_types}
+            keyIngredients={product.key_ingredients}
+          />
+
           {product.description && (
             <p className="mt-6 text-sm text-muted-foreground leading-relaxed">
               {product.description}
@@ -138,6 +146,17 @@ export default async function ProductPage({
           </div>
         </div>
       </div>
+
+      <section className="mt-12 md:mt-16 max-w-3xl">
+        <ProductExtendedInfo
+          whatItIs={product.what_it_is}
+          whatItDoes={product.what_it_does}
+          howItWorks={product.how_it_works}
+          fullIngredients={product.full_ingredients}
+          directionsToUse={product.directions_to_use}
+          faqs={product.faqs}
+        />
+      </section>
 
       <section className="mt-16 md:mt-24">
         <Suspense fallback={<div className="h-40" />}>

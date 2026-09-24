@@ -5,33 +5,41 @@ import { ArrowRight, X } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { MAX_KEY_FEATURES, MAX_WORDS_PER_KEY_FEATURE } from "@/lib/key-features"
 
-export function KeyFeaturesInput({
+// Generic chip-list editor — type text, press Enter or the arrow button to
+// add it as a dismissable chip. Used for key features, benefits, skin
+// types, and key ingredients, each with their own item/word caps.
+export function ChipListInput({
   value,
   onChange,
+  placeholder = "Type and press Enter",
+  maxItems,
+  maxWordsPerItem,
 }: {
   value: string[]
-  onChange: (features: string[]) => void
+  onChange: (items: string[]) => void
+  placeholder?: string
+  maxItems: number
+  maxWordsPerItem?: number
 }) {
   const [draft, setDraft] = useState("")
   const [error, setError] = useState<string | null>(null)
-  const atLimit = value.length >= MAX_KEY_FEATURES
+  const atLimit = value.length >= maxItems
 
-  function addFeature() {
+  function addItem() {
     const text = draft.trim()
     if (!text) return
 
     if (atLimit) {
-      setError(`You can add up to ${MAX_KEY_FEATURES} key features.`)
+      setError(`You can add up to ${maxItems} items.`)
       return
     }
-    if (text.split(/\s+/).length > MAX_WORDS_PER_KEY_FEATURE) {
-      setError(`Keep each key feature to ${MAX_WORDS_PER_KEY_FEATURE} words or fewer.`)
+    if (maxWordsPerItem && text.split(/\s+/).length > maxWordsPerItem) {
+      setError(`Keep each item to ${maxWordsPerItem} words or fewer.`)
       return
     }
-    if (value.some((f) => f.toLowerCase() === text.toLowerCase())) {
-      setError("That key feature is already added.")
+    if (value.some((v) => v.toLowerCase() === text.toLowerCase())) {
+      setError("That item is already added.")
       return
     }
 
@@ -43,7 +51,7 @@ export function KeyFeaturesInput({
   function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter") {
       e.preventDefault()
-      addFeature()
+      addItem()
     }
   }
 
@@ -57,7 +65,7 @@ export function KeyFeaturesInput({
             if (error) setError(null)
           }}
           onKeyDown={handleKeyDown}
-          placeholder={atLimit ? "Maximum reached" : "e.g. Paraben-free formula"}
+          placeholder={atLimit ? "Maximum reached" : placeholder}
           disabled={atLimit}
           maxLength={80}
         />
@@ -65,9 +73,9 @@ export function KeyFeaturesInput({
           type="button"
           variant="outline"
           size="icon"
-          onClick={addFeature}
+          onClick={addItem}
           disabled={atLimit || !draft.trim()}
-          aria-label="Add key feature"
+          aria-label="Add"
         >
           <ArrowRight className="w-4 h-4" aria-hidden="true" />
         </Button>
@@ -81,14 +89,14 @@ export function KeyFeaturesInput({
 
       {value.length > 0 && (
         <ul className="flex flex-wrap gap-1.5">
-          {value.map((feature, index) => (
-            <li key={`${feature}-${index}`}>
+          {value.map((item, index) => (
+            <li key={`${item}-${index}`}>
               <Badge variant="secondary" className="gap-1">
-                {feature}
+                {item}
                 <button
                   type="button"
                   onClick={() => onChange(value.filter((_, i) => i !== index))}
-                  aria-label={`Remove "${feature}"`}
+                  aria-label={`Remove "${item}"`}
                   className="rounded-full hover:bg-foreground/10"
                 >
                   <X className="w-3 h-3" aria-hidden="true" />
@@ -100,7 +108,7 @@ export function KeyFeaturesInput({
       )}
 
       <p className="text-xs text-muted-foreground">
-        {value.length}/{MAX_KEY_FEATURES} key features &middot; max {MAX_WORDS_PER_KEY_FEATURE} words each
+        {value.length}/{maxItems} items{maxWordsPerItem ? ` · max ${maxWordsPerItem} words each` : ""}
       </p>
     </div>
   )
