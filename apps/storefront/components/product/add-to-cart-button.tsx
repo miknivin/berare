@@ -42,10 +42,9 @@ export function AddToCartButton({ product }: { product: ProductDetail }) {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-3">
-        <span className="text-sm font-medium">Quantity</span>
-        <div className="flex items-center rounded-full border border-border">
+    <div className="flex flex-col gap-2">
+      <div className="flex flex-row items-center gap-3">
+        <div className="flex items-center rounded-full border border-border shrink-0">
           <button
             type="button"
             onClick={() => setQuantity((q) => Math.max(1, q - 1))}
@@ -66,25 +65,26 @@ export function AddToCartButton({ product }: { product: ProductDetail }) {
             <Plus className="w-4 h-4" aria-hidden="true" />
           </button>
         </div>
-        {product.stock_quantity <= 5 && (
-          <span className="text-xs text-destructive">Only {product.stock_quantity} left</span>
-        )}
+
+        <button
+          type="button"
+          onClick={handleAdd}
+          className="flex-1 min-h-12 rounded-full bg-primary text-primary-foreground px-8 py-3 text-sm font-medium hover:bg-primary-hover transition-colors flex items-center justify-center gap-2"
+        >
+          {justAdded ? (
+            <>
+              <Check className="w-4 h-4" aria-hidden="true" />
+              Added to Cart
+            </>
+          ) : (
+            "Add to Cart"
+          )}
+        </button>
       </div>
 
-      <button
-        type="button"
-        onClick={handleAdd}
-        className="min-h-12 rounded-full bg-primary text-primary-foreground px-8 py-3 text-sm font-medium hover:bg-primary-hover transition-colors flex items-center justify-center gap-2"
-      >
-        {justAdded ? (
-          <>
-            <Check className="w-4 h-4" aria-hidden="true" />
-            Added to Cart
-          </>
-        ) : (
-          "Add to Cart"
-        )}
-      </button>
+      {product.stock_quantity <= 5 && (
+        <span className="text-xs text-destructive">Only {product.stock_quantity} left</span>
+      )}
     </div>
   )
 }

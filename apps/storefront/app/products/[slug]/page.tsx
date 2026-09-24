@@ -2,7 +2,7 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import { Suspense } from "react"
 import type { Metadata } from "next"
-import { Check, ShieldCheck, Truck } from "lucide-react"
+import { ShieldCheck, Truck } from "lucide-react"
 import { getProductBySlug, getRelatedProducts } from "@/lib/data/products"
 import { ProductGallery } from "@/components/product/product-gallery"
 import { ProductGrid } from "@/components/product/product-grid"
@@ -73,11 +73,13 @@ export default async function ProductPage({
       </nav>
 
       <div className="grid md:grid-cols-2 gap-8 md:gap-12">
-        <ProductGallery
-          images={product.product_images}
-          alt={product.name}
-          className="aspect-square"
-        />
+        <div className="md:sticky md:top-24 md:self-start">
+          <ProductGallery
+            images={product.product_images}
+            alt={product.name}
+            className="aspect-square"
+          />
+        </div>
 
         <div>
           <div className="flex items-start justify-between gap-4">
@@ -97,6 +99,11 @@ export default async function ProductPage({
               <ShareButton title={product.name} url={productUrl} />
             </div>
           </div>
+
+          {product.key_features.length > 0 && (
+            <p className="mt-2 text-sm text-muted-foreground">{product.key_features.join(" | ")}</p>
+          )}
+
           <div className="mt-2 flex items-center gap-3">
             <PriceDisplay price={product.price} compareAtPrice={product.compare_at_price} size="lg" />
             {product.net_volume && (
@@ -104,19 +111,9 @@ export default async function ProductPage({
             )}
           </div>
 
-          {product.key_features.length > 0 && (
-            <ul className="mt-6 flex flex-wrap gap-2">
-              {product.key_features.map((feature) => (
-                <li
-                  key={feature}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary"
-                >
-                  <Check className="w-3 h-3" aria-hidden="true" />
-                  {feature}
-                </li>
-              ))}
-            </ul>
-          )}
+          <div className="mt-4">
+            <AddToCartButton product={product} />
+          </div>
 
           <ProductHighlights
             benefits={product.benefits}
@@ -130,10 +127,6 @@ export default async function ProductPage({
             </p>
           )}
 
-          <div className="mt-8">
-            <AddToCartButton product={product} />
-          </div>
-
           <div className="mt-8 pt-6 border-t border-border flex flex-col gap-3 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <Truck className="w-4 h-4 shrink-0" aria-hidden="true" />
@@ -144,19 +137,19 @@ export default async function ProductPage({
               Secure checkout with Razorpay
             </div>
           </div>
+
+          <div className="mt-8">
+            <ProductExtendedInfo
+              whatItIs={product.what_it_is}
+              whatItDoes={product.what_it_does}
+              howItWorks={product.how_it_works}
+              fullIngredients={product.full_ingredients}
+              directionsToUse={product.directions_to_use}
+              faqs={product.faqs}
+            />
+          </div>
         </div>
       </div>
-
-      <section className="mt-12 md:mt-16 max-w-3xl">
-        <ProductExtendedInfo
-          whatItIs={product.what_it_is}
-          whatItDoes={product.what_it_does}
-          howItWorks={product.how_it_works}
-          fullIngredients={product.full_ingredients}
-          directionsToUse={product.directions_to_use}
-          faqs={product.faqs}
-        />
-      </section>
 
       <section className="mt-16 md:mt-24">
         <Suspense fallback={<div className="h-40" />}>
