@@ -1,6 +1,7 @@
 import { unstable_cache } from "next/cache"
 import { createPublicSupabaseClient } from "@berare/db/public"
 import { getS3Url } from "@/lib/image"
+import { CACHE_TAGS } from "@/lib/cache-tags"
 
 export type HeroBanner = {
   id: string
@@ -33,5 +34,5 @@ export const getHeroBanners = unstable_cache(
     }))
   },
   ["hero-banners"],
-  { revalidate: 60 }
+  { revalidate: 60, tags: [CACHE_TAGS.banners] }
 )

@@ -1,6 +1,7 @@
 import { cache } from "react"
 import { unstable_cache } from "next/cache"
 import { createPublicSupabaseClient } from "@berare/db/public"
+import { CACHE_TAGS } from "@/lib/cache-tags"
 
 export type Category = {
   id: string
@@ -27,7 +28,7 @@ const getCategoriesCached = unstable_cache(
     return data ?? []
   },
   ["categories"],
-  { revalidate: 60 }
+  { revalidate: 60, tags: [CACHE_TAGS.categories] }
 )
 
 // React's cache() additionally dedupes within a single request — Navbar
@@ -59,7 +60,7 @@ const getActiveProductCategoryIdsCached = unstable_cache(
     )
   },
   ["active-product-category-ids"],
-  { revalidate: 60 }
+  { revalidate: 60, tags: [CACHE_TAGS.products] }
 )
 
 export const getActiveProductCategoryIds = cache(

@@ -2,6 +2,7 @@ import { unstable_cache } from "next/cache"
 import { createPublicSupabaseClient } from "@berare/db/public"
 import { getCategories } from "./categories"
 import { ProductFilters, type PlainProductFilters } from "./product-filters"
+import { CACHE_TAGS } from "@/lib/cache-tags"
 
 export type ProductImage = {
   id: string
@@ -55,7 +56,7 @@ const getProductsCached = unstable_cache(
     return { products: (data ?? []) as ProductListItem[], total: count ?? 0 }
   },
   ["products"],
-  { revalidate: 60 }
+  { revalidate: 60, tags: [CACHE_TAGS.products] }
 )
 
 export async function getProducts(filters: ProductFilters) {
@@ -86,7 +87,7 @@ export const getProductBySlug = unstable_cache(
     return data as ProductDetail | null
   },
   ["product-by-slug"],
-  { revalidate: 60 }
+  { revalidate: 60, tags: [CACHE_TAGS.products] }
 )
 
 const BEST_SELLER_LIMIT = 8
@@ -149,7 +150,7 @@ export const getBestSellers = unstable_cache(
     }
   },
   ["best-sellers"],
-  { revalidate: 60 }
+  { revalidate: 60, tags: [CACHE_TAGS.products] }
 )
 
 export const getRelatedProducts = unstable_cache(
@@ -192,5 +193,5 @@ export const getRelatedProducts = unstable_cache(
     return sorted.slice(0, 4) as ProductListItem[]
   },
   ["related-products"],
-  { revalidate: 60 }
+  { revalidate: 60, tags: [CACHE_TAGS.products] }
 )
