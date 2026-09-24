@@ -7,6 +7,7 @@ import { createServiceRoleClient } from "@berare/db/service-role"
 import { slugify } from "@/lib/slugify"
 import { createPresignedUploadUrl, deleteS3Object } from "@/lib/s3"
 import { MAX_KEY_FEATURES, MAX_WORDS_PER_KEY_FEATURE } from "@/lib/key-features"
+import { revalidateStorefront } from "@/lib/revalidate-storefront"
 
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"]
 
@@ -85,6 +86,7 @@ export async function createProduct(input: z.infer<typeof productInputSchema>): 
   }
 
   revalidatePath("/products")
+  await revalidateStorefront("products")
   return { success: true, id: data.id }
 }
 
@@ -148,6 +150,7 @@ export async function updateProduct(
 
   revalidatePath("/products")
   revalidatePath(`/products/${id}`)
+  await revalidateStorefront("products")
   return { success: true, id }
 }
 
@@ -162,6 +165,7 @@ export async function toggleProductStatus(id: string, status: "active" | "disabl
   }
 
   revalidatePath("/products")
+  await revalidateStorefront("products")
   return { success: true, id }
 }
 
@@ -198,6 +202,7 @@ export async function deleteProduct(id: string): Promise<ProductActionResult> {
   )
 
   revalidatePath("/products")
+  await revalidateStorefront("products")
   return { success: true, id }
 }
 
@@ -246,6 +251,7 @@ export async function addProductImage(
   }
 
   revalidatePath(`/products/${productId}`)
+  await revalidateStorefront("products")
   return { success: true, id: productId }
 }
 
@@ -274,5 +280,6 @@ export async function deleteProductImage(imageId: string, productId: string): Pr
   }
 
   revalidatePath(`/products/${productId}`)
+  await revalidateStorefront("products")
   return { success: true, id: productId }
 }

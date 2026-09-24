@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache"
 import { createServiceRoleClient } from "@berare/db/service-role"
 import { getPublicUrl } from "@/lib/s3"
 import { DEFAULT_PAGE_SIZE } from "@/lib/pagination"
@@ -16,15 +17,25 @@ export type CategoryListItem = Category & {
   image_url: string | null
 }
 
-export async function getCategories(): Promise<Category[]> {
-  const supabase = createServiceRoleClient()
-  const { data, error } = await supabase
-    .from("categories")
-    .select("id, name, slug, parent_id, image_path")
-    .order("name")
-  if (error) throw error
-  return data ?? []
-}
+// Plain reference data (product-form dropdowns etc.), not the live
+// operational table below (getCategoriesWithMeta, which staff manage
+// categories from and needs to always be current) — this is the one call
+// safe to cache, using the same "categories" tag the storefront's own
+// (separate) cache uses. This app's admin actions already invalidate both
+// with revalidateTag() + revalidateStorefront() after a mutation.
+export const getCategories = unstable_cache(
+  async (): Promise<Category[]> => {
+    const supabase = createServiceRoleClient()
+    const { data, error } = await supabase
+      .from("categories")
+      .select("id, name, slug, parent_id, image_path")
+      .order("name")
+    if (error) throw error
+    return data ?? []
+  },
+  ["categories"],
+  { revalidate: 60, tags: ["categories"] }
+)
 
 export type PaginatedCategories = {
   categories: CategoryListItem[]

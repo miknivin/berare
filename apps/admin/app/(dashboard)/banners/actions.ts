@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache"
 import { requireStaff } from "@/lib/auth"
 import { createServiceRoleClient } from "@berare/db/service-role"
 import { createPresignedUploadUrl, deleteS3Object } from "@/lib/s3"
+import { revalidateStorefront } from "@/lib/revalidate-storefront"
 
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"]
 
@@ -71,6 +72,7 @@ export async function createBanner(input: z.infer<typeof bannerInputSchema>): Pr
   if (error || !data) return { success: false, error: "Could not create banner." }
 
   revalidatePath("/banners")
+  await revalidateStorefront("banners")
   return { success: true, id: data.id }
 }
 
@@ -116,6 +118,7 @@ export async function updateBanner(
   }
 
   revalidatePath("/banners")
+  await revalidateStorefront("banners")
   return { success: true, id }
 }
 
@@ -128,6 +131,7 @@ export async function toggleBannerActive(id: string, isActive: boolean): Promise
   if (error) return { success: false, error: "Could not update banner." }
 
   revalidatePath("/banners")
+  await revalidateStorefront("banners")
   return { success: true, id }
 }
 
@@ -151,5 +155,6 @@ export async function deleteBanner(id: string): Promise<BannerActionResult> {
   }
 
   revalidatePath("/banners")
+  await revalidateStorefront("banners")
   return { success: true, id }
 }

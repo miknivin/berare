@@ -1,11 +1,12 @@
 "use server"
 
 import { z } from "zod"
-import { revalidatePath } from "next/cache"
+import { revalidatePath, updateTag } from "next/cache"
 import { requireStaff } from "@/lib/auth"
 import { createServiceRoleClient } from "@berare/db/service-role"
 import { slugify } from "@/lib/slugify"
 import { createPresignedUploadUrl, deleteS3Object } from "@/lib/s3"
+import { revalidateStorefront } from "@/lib/revalidate-storefront"
 
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"]
 
@@ -68,6 +69,8 @@ export async function createCategory(input: z.infer<typeof categoryInputSchema>)
   }
 
   revalidatePath("/categories")
+  updateTag("categories")
+  await revalidateStorefront("categories")
   return { success: true, id: data.id }
 }
 
@@ -119,6 +122,8 @@ export async function updateCategory(
   }
 
   revalidatePath("/categories")
+  updateTag("categories")
+  await revalidateStorefront("categories")
   return { success: true, id }
 }
 
@@ -145,5 +150,7 @@ export async function deleteCategory(id: string): Promise<CategoryActionResult> 
   }
 
   revalidatePath("/categories")
+  updateTag("categories")
+  await revalidateStorefront("categories")
   return { success: true, id }
 }

@@ -4,6 +4,7 @@ import { z } from "zod"
 import { revalidatePath } from "next/cache"
 import { requireStaff } from "@/lib/auth"
 import { createServiceRoleClient } from "@berare/db/service-role"
+import { revalidateStorefront } from "@/lib/revalidate-storefront"
 
 export type SettingsActionResult = { success: true } | { success: false; error: string }
 
@@ -58,9 +59,15 @@ export async function updatePaymentSettings(
     return { success: false, error: parsed.error.issues[0]?.message ?? "Invalid input" }
   }
 
-  return updateConfigValues([
+  const result = await updateConfigValues([
     ["prepaid_discount_percent", parsed.data.prepaidDiscountPercent],
     ["cod_free_shipping_threshold", parsed.data.codFreeShippingThreshold],
     ["cod_additional_charge", parsed.data.codAdditionalCharge],
   ])
+
+  if (result.success) {
+    await revalidateStorefront("pricing-config")
+  }
+
+  return result
 }
